@@ -15,6 +15,23 @@ from rdflib.namespace import OWL, RDF, RDFS, SKOS
 
 
 @dataclass
+class RestrictionInfo:
+    source: str
+    property_uri: URIRef | BNode | None
+    property_label: str
+    kind: str
+    value_label: str
+    value_uri: URIRef | None = None
+    raw_value: str | None = None
+
+@dataclass
+class EquivalentExpression:
+    source: str
+    operator: str
+    members: list[str]
+
+
+@dataclass
 class NodeInfo:
     uri: URIRef
     label: str
@@ -25,7 +42,8 @@ class NodeInfo:
     outgoing_rules: DefaultDict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
     incoming_rules: DefaultDict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
     incoming_instances: DefaultDict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
-
+    restrictions: DefaultDict[str, list[RestrictionInfo]] = field(default_factory=lambda: defaultdict(list))
+    equivalent_expressions: DefaultDict[str, list[EquivalentExpression]] = field(default_factory=lambda: defaultdict(list))
 
 def local_name(term: URIRef | BNode | Literal) -> str:
     if isinstance(term, Literal):
@@ -55,7 +73,7 @@ def namespace_prefix_for_uri(uri: URIRef) -> str:
         return "FOODON"
     if "egad" in text:
         return "EGAD"
-    if "wqp" in text:
+    if "wqp" in text or "us-wqp" in text:
         return "WQP"
     if "contaminoso" in text or "coso" in text:
         return "COSO"
@@ -101,8 +119,8 @@ def namespace_prefixes_in_view(nodes: dict[URIRef, NodeInfo], selected: set[URIR
         visited.add(uri)
         node = nodes[uri]
         prefixes.add(namespace_prefix_for_uri(uri))
-        prefixes.update(source_namespace_prefix(source) for source in node.incoming_rules)
         prefixes.update(source_namespace_prefix(source) for source in node.incoming_instances)
+        prefixes.update(source_namespace_prefix(source) for source in node.restrictions)
         for child in node.children & selected:
             visit(child)
 
@@ -126,36 +144,242 @@ def property_label(graph: Graph, predicate: URIRef | BNode | None) -> str:
     return local_name(predicate) if predicate is not None else "related to"
 
 
-def render_restriction_rules(label_graph: Graph, graph: Graph, subject: URIRef, expression: URIRef | BNode) -> list[tuple[URIRef, str]]:
-    rules: list[tuple[URIRef, str]] = []
+def expression_label(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode | Literal | None,
+) -> str:
+    if node is None:
+        return "?"
+    if isinstance(node, Literal):
+        return str(node)
+    if isinstance(node, URIRef):
+        return label_for(label_graph, node)
+
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [
+            expression_label(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, union_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return "(" + " or ".join(members) + ")"
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [
+            expression_label(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, intersection_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return "(" + " and ".join(members) + ")"
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        prop = structure_graph.value(node, OWL.onProperty)
+        prop_text = property_label(label_graph, prop)
+
+        for predicate, kind in (
+            (OWL.hasValue, "value"),
+            (OWL.someValuesFrom, "some"),
+            (OWL.allValuesFrom, "only"),
+        ):
+            value = structure_graph.value(node, predicate)
+            if value is not None:
+                return f"{prop_text} {kind} {expression_label(structure_graph, label_graph, value)}"
+
+        for predicate, kind in CARDINALITY_PREDICATES.items():
+            value = structure_graph.value(node, predicate)
+            if value is not None:
+                on_class = structure_graph.value(node, OWL.onClass)
+                if on_class is not None:
+                    return f"{prop_text} {kind} {value} {expression_label(structure_graph, label_graph, on_class)}"
+                return f"{prop_text} {kind} {value}"
+
+    return "[anonymous class]"
+
+def object_label(
+    structure_graph: Graph,
+    label_graph: Graph,
+    obj: URIRef | BNode | Literal | None,
+) -> str:
+    return expression_label(structure_graph, label_graph, obj)
+
+
+CARDINALITY_PREDICATES = {
+    OWL.minCardinality: "min",
+    OWL.maxCardinality: "max",
+    OWL.cardinality: "exactly",
+    OWL.minQualifiedCardinality: "min qualified",
+    OWL.maxQualifiedCardinality: "max qualified",
+    OWL.qualifiedCardinality: "exactly qualified",
+}
+
+VALUE_PREDICATES = {
+    OWL.someValuesFrom: "some",
+    OWL.allValuesFrom: "only",
+    OWL.hasValue: "value",
+    OWL.onClass: "onClass",
+}
+
+
+def parse_restrictions(
+    label_graph: Graph,
+    graph: Graph,
+    subject: URIRef,
+    expression: URIRef | BNode,
+    source: str,
+) -> list[RestrictionInfo]:
+    restrictions: list[RestrictionInfo] = []
 
     if isinstance(expression, URIRef) and (expression, RDF.type, OWL.Restriction) not in graph:
-        return rules
+        pass
+    elif (expression, RDF.type, OWL.Restriction) in graph:
+        prop = graph.value(expression, OWL.onProperty)
+        prop_text = property_label(label_graph, prop)
 
-    prop = graph.value(expression, OWL.onProperty)
-    prop_text = property_label(label_graph, prop)
-    operator = "some"
-    target = graph.value(expression, OWL.someValuesFrom)
-    if target is None:
-        target = graph.value(expression, OWL.hasValue)
-        if target is not None:
-            operator = "hasValue"
-    if target is None:
-        target = graph.value(expression, OWL.onClass)
-        if target is not None:
-            operator = "onClass"
-    if isinstance(target, URIRef):
-        subject_text = label_for(label_graph, subject)
-        target_text = label_for(label_graph, target)
-        rule_text = f"{subject_text}: {prop_text} {operator} {target_text}"
-        rules.append((target, rule_text))
+        for predicate, kind in VALUE_PREDICATES.items():
+            for value in graph.objects(expression, predicate):
+                restrictions.append(
+                    RestrictionInfo(
+                        source=source,
+                        property_uri=prop,
+                        property_label=prop_text,
+                        kind=kind,
+                        value_label=manchester_expr(graph, label_graph, value),
+                        value_uri=value if isinstance(value, URIRef) else None,
+                        raw_value=str(value),
+                    )
+                )
 
-    nested = graph.value(expression, OWL.intersectionOf) or graph.value(expression, OWL.unionOf)
-    if isinstance(nested, BNode):
-        for item in Collection(graph, nested):
-            rules.extend(render_restriction_rules(label_graph, graph, subject, item))
+        for predicate, kind in CARDINALITY_PREDICATES.items():
+            for value in graph.objects(expression, predicate):
+                on_class = graph.value(expression, OWL.onClass)
+                value_text = str(value)
+                value_uri: URIRef | None = None
+                if on_class is not None:
+                    value_uri = on_class if isinstance(on_class, URIRef) else None
+                    value_text = f"{value} {label_for(label_graph, on_class)}"
+                restrictions.append(
+                    RestrictionInfo(
+                        source=source,
+                        property_uri=prop,
+                        property_label=prop_text,
+                        kind=kind,
+                        value_label=value_text,
+                        value_uri=value_uri,
+                        raw_value=str(value),
+                    )
+                )
 
-    return rules
+        for value in graph.objects(expression, OWL.hasSelf):
+            restrictions.append(
+                RestrictionInfo(
+                    source=source,
+                    property_uri=prop,
+                    property_label=prop_text,
+                    kind="self",
+                    value_label=str(value),
+                    raw_value=str(value),
+                )
+            )
+
+    union_list = graph.value(expression, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        union_items = list(Collection(graph, union_list))
+        grouped_values: dict[tuple[str, str], list[RestrictionInfo]] = defaultdict(list)
+
+        for item in union_items:
+            if isinstance(item, BNode):
+                nested_restrictions = parse_restrictions(label_graph, graph, subject, item, source)
+                for r in nested_restrictions:
+                    if r.kind == "value":
+                        grouped_values[(r.property_label, r.kind)].append(r)
+                    else:
+                        restrictions.append(r)
+            elif isinstance(item, URIRef):
+                restrictions.append(
+                    RestrictionInfo(
+                        source=source,
+                        property_uri=None,
+                        property_label="union",
+                        kind="class",
+                        value_label=label_for(label_graph, item),
+                        value_uri=item,
+                        raw_value=str(item),
+                    )
+                )
+
+        for (prop_label, kind), grouped in grouped_values.items():
+            unique_vals = []
+            seen_vals = set()
+            for r in grouped:
+                key = (r.value_label, r.raw_value)
+                if key in seen_vals:
+                    continue
+                seen_vals.add(key)
+                unique_vals.append(r)
+
+            if len(unique_vals) == 1:
+                restrictions.append(unique_vals[0])
+            else:
+                restrictions.append(
+                    RestrictionInfo(
+                        source=source,
+                        property_uri=unique_vals[0].property_uri,
+                        property_label=prop_label,
+                        kind="value",
+                        value_label=" or ".join(r.value_label for r in unique_vals),
+                        value_uri=None,
+                        raw_value="|".join((r.raw_value or r.value_label) for r in unique_vals),
+                    )
+                )
+
+    intersection_list = graph.value(expression, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        for item in Collection(graph, intersection_list):
+            if isinstance(item, BNode):
+                restrictions.extend(parse_restrictions(label_graph, graph, subject, item, source))
+            elif isinstance(item, URIRef):
+                restrictions.append(
+                    RestrictionInfo(
+                        source=source,
+                        property_uri=None,
+                        property_label="intersection",
+                        kind="class",
+                        value_label=label_for(label_graph, item),
+                        value_uri=item,
+                        raw_value=str(item),
+                    )
+                )
+
+    return restrictions
+
+
+def collect_restriction_targets(
+    graph: Graph,
+    node: URIRef | BNode,
+    seen: set[URIRef | BNode] | None = None,
+) -> set[URIRef]:
+    seen = seen or set()
+    if node in seen:
+        return set()
+    seen.add(node)
+
+    targets: set[URIRef] = set()
+    for predicate, obj in graph.predicate_objects(node):
+        if predicate in {OWL.someValuesFrom, OWL.hasValue, OWL.onClass, OWL.allValuesFrom} and isinstance(obj, URIRef):
+            targets.add(obj)
+        elif predicate in {OWL.intersectionOf, OWL.unionOf} and isinstance(obj, BNode):
+            for item in Collection(graph, obj):
+                if isinstance(item, URIRef):
+                    targets.add(item)
+                elif isinstance(item, BNode):
+                    targets.update(collect_restriction_targets(graph, item, seen))
+        elif isinstance(obj, BNode):
+            targets.update(collect_restriction_targets(graph, obj, seen))
+    return targets
 
 
 def node_dom_id(uri: URIRef) -> str:
@@ -182,34 +406,47 @@ def ensure_node(nodes: dict[URIRef, NodeInfo], graph: Graph, uri: URIRef, source
 
 
 def class_terms(graph: Graph) -> set[URIRef]:
-    terms: set[URIRef] = {subject for subject in graph.subjects(RDF.type, OWL.Class) if isinstance(subject, URIRef)}
-    terms.update(subject for subject in graph.subjects(RDF.type, OWL.Restriction) if isinstance(subject, URIRef))
-    terms.update(subject for subject in graph.subjects(RDFS.subClassOf, None) if isinstance(subject, URIRef))
-    terms.update(subject for subject in graph.subjects(OWL.equivalentClass, None) if isinstance(subject, URIRef))
-    terms.update(subject for subject in graph.subjects(OWL.intersectionOf, None) if isinstance(subject, URIRef))
-    terms.update(subject for subject in graph.subjects(OWL.unionOf, None) if isinstance(subject, URIRef))
+    terms: set[URIRef] = set()
+
+    for predicate in (
+        RDF.type,
+        RDFS.subClassOf,
+        OWL.equivalentClass,
+        OWL.intersectionOf,
+        OWL.unionOf,
+    ):
+        for subject in graph.subjects(predicate, None):
+            if isinstance(subject, URIRef):
+                terms.add(subject)
+
+    for subject in graph.subjects(RDF.type, OWL.Class):
+        if isinstance(subject, URIRef):
+            terms.add(subject)
+
+    for subject in graph.subjects(RDF.type, OWL.Restriction):
+        if isinstance(subject, URIRef):
+            terms.add(subject)
+
     return terms
 
 
-def collect_restriction_targets(graph: Graph, node: URIRef | BNode, seen: set[URIRef | BNode] | None = None) -> set[URIRef]:
-    seen = seen or set()
-    if node in seen:
-        return set()
-    seen.add(node)
+def add_restrictions_to_node(
+    nodes: dict[URIRef, NodeInfo],
+    graph: Graph,
+    label_graph: Graph,
+    subject: URIRef,
+    expression: URIRef | BNode,
+    source: str,
+) -> None:
+    for r in parse_restrictions(label_graph, graph, subject, expression, source):
+        nodes[subject].restrictions[source].append(r)
 
-    targets: set[URIRef] = set()
-    for predicate, obj in graph.predicate_objects(node):
-        if predicate in {OWL.someValuesFrom, OWL.hasValue, OWL.onClass} and isinstance(obj, URIRef):
-            targets.add(obj)
-        elif predicate in {OWL.intersectionOf, OWL.unionOf} and isinstance(obj, BNode):
-            for item in Collection(graph, obj):
-                if isinstance(item, URIRef):
-                    targets.add(item)
-                elif isinstance(item, BNode):
-                    targets.update(collect_restriction_targets(graph, item, seen))
-        elif isinstance(obj, BNode):
-            targets.update(collect_restriction_targets(graph, obj, seen))
-    return targets
+        if r.property_label and r.value_label:
+            rule_text = f"{label_for(label_graph, subject)}: {r.property_label} {r.kind} {r.value_label}"
+            nodes[subject].outgoing_rules[source].append(rule_text)
+            if r.value_uri is not None:
+                ensure_node(nodes, graph, r.value_uri, source)
+                nodes[r.value_uri].incoming_rules[source].append(rule_text)
 
 
 def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[URIRef, NodeInfo]) -> None:
@@ -218,18 +455,18 @@ def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[U
 
     for subject in {s for s in graph.subjects(RDF.type, OWL.Restriction) if isinstance(s, URIRef)}:
         ensure_node(nodes, graph, subject, source)
-        for target, rule_text in render_restriction_rules(label_graph, graph, subject, subject):
-            ensure_node(nodes, graph, target, source)
-            nodes[subject].outgoing_rules[source].append(rule_text)
-            nodes[target].incoming_rules[source].append(rule_text)
+        add_restrictions_to_node(nodes, graph, label_graph, subject, subject, source)
 
     for subject, parent in graph.subject_objects(RDFS.subClassOf):
-        if not isinstance(subject, URIRef) or not isinstance(parent, URIRef):
+        if not isinstance(subject, URIRef):
             continue
         ensure_node(nodes, graph, subject, source)
-        ensure_node(nodes, graph, parent, source)
-        nodes[subject].parents.add(parent)
-        nodes[parent].children.add(subject)
+        if isinstance(parent, URIRef):
+            ensure_node(nodes, graph, parent, source)
+            nodes[subject].parents.add(parent)
+            nodes[parent].children.add(subject)
+        elif isinstance(parent, BNode):
+            add_restrictions_to_node(nodes, graph, label_graph, subject, parent, source)
 
     for subject, expression in graph.subject_objects(OWL.equivalentClass):
         if not isinstance(subject, URIRef):
@@ -238,13 +475,20 @@ def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[U
         if isinstance(expression, URIRef):
             ensure_node(nodes, graph, expression, source)
             nodes[subject].alignment_targets[source].add(expression)
+            nodes[subject].equivalent_expressions[source].append(
+                EquivalentExpression(
+                    source=source,
+                    operator="",
+                    members=[label_for(label_graph, expression)],
+                )
+            )
         elif isinstance(expression, BNode):
+            expr = collect_equivalent_expression(graph, label_graph, expression, source)
+            if expr is not None:
+                nodes[subject].equivalent_expressions[source].append(expr)
             targets = collect_restriction_targets(graph, expression)
             nodes[subject].alignment_targets[source].update(targets)
-            for target, rule_text in render_restriction_rules(label_graph, graph, subject, expression):
-                ensure_node(nodes, graph, target, source)
-                nodes[subject].outgoing_rules[source].append(rule_text)
-                nodes[target].incoming_rules[source].append(rule_text)
+            add_restrictions_to_node(nodes, graph, label_graph, subject, expression, source)
 
     for subject in class_terms(graph):
         for expression in graph.objects(subject, OWL.intersectionOf):
@@ -258,10 +502,7 @@ def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[U
                 elif isinstance(item, BNode):
                     targets = collect_restriction_targets(graph, item)
                     nodes[subject].alignment_targets[source].update(targets)
-                    for target, rule_text in render_restriction_rules(label_graph, graph, subject, item):
-                        ensure_node(nodes, graph, target, source)
-                        nodes[subject].outgoing_rules[source].append(rule_text)
-                        nodes[target].incoming_rules[source].append(rule_text)
+                    add_restrictions_to_node(nodes, graph, label_graph, subject, item, source)
 
         for expression in graph.objects(subject, OWL.unionOf):
             if not isinstance(expression, BNode):
@@ -272,10 +513,7 @@ def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[U
                 elif isinstance(item, BNode):
                     targets = collect_restriction_targets(graph, item)
                     nodes[subject].alignment_targets[source].update(targets)
-                    for target, rule_text in render_restriction_rules(label_graph, graph, subject, item):
-                        ensure_node(nodes, graph, target, source)
-                        nodes[subject].outgoing_rules[source].append(rule_text)
-                        nodes[target].incoming_rules[source].append(rule_text)
+                    add_restrictions_to_node(nodes, graph, label_graph, subject, item, source)
 
 
 def add_inferred_instances(graph: Graph, label_graph: Graph, nodes: dict[URIRef, NodeInfo]) -> None:
@@ -308,6 +546,121 @@ def add_inferred_instances(graph: Graph, label_graph: Graph, nodes: dict[URIRef,
             ensure_node(nodes, label_graph, target, source)
             nodes[target].incoming_instances[source].add(subject_label)
 
+def collect_equivalent_expression(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode,
+    source: str,
+) -> EquivalentExpression | None:
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [manchester_expr(structure_graph, label_graph, item) for item in Collection(structure_graph, union_list)]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="or", members=members)
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [manchester_expr(structure_graph, label_graph, item) for item in Collection(structure_graph, intersection_list)]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="and", members=members)
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        text = manchester_expr(structure_graph, label_graph, node)
+        return EquivalentExpression(source=source, operator="", members=[text])
+
+    return None
+
+def manchester_expr(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode | Literal | None,
+) -> str:
+    if node is None:
+        return "?"
+    if isinstance(node, Literal):
+        return str(node)
+    if isinstance(node, URIRef):
+        return label_for(label_graph, node)
+
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, union_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        return " or ".join(members)
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, intersection_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        return " and ".join(members)
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        prop = structure_graph.value(node, OWL.onProperty)
+        prop_text = property_label(label_graph, prop)
+
+        some_value = structure_graph.value(node, OWL.someValuesFrom)
+        if some_value is not None:
+            return f"{prop_text} some {manchester_expr(structure_graph, label_graph, some_value)}"
+
+        all_value = structure_graph.value(node, OWL.allValuesFrom)
+        if all_value is not None:
+            return f"{prop_text} only {manchester_expr(structure_graph, label_graph, all_value)}"
+
+        has_value = structure_graph.value(node, OWL.hasValue)
+        if has_value is not None:
+            return f"{prop_text} value {manchester_expr(structure_graph, label_graph, has_value)}"
+
+        for predicate, kind in CARDINALITY_PREDICATES.items():
+            value = structure_graph.value(node, predicate)
+            if value is not None:
+                on_class = structure_graph.value(node, OWL.onClass)
+                if on_class is not None:
+                    return f"{prop_text} {kind} {value} {manchester_expr(structure_graph, label_graph, on_class)}"
+                return f"{prop_text} {kind} {value}"
+
+    return "[anonymous class]"
+
+
+def collect_equivalent_expression(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode,
+    source: str,
+) -> EquivalentExpression | None:
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, union_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="or", members=members)
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, intersection_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="and", members=members)
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        text = manchester_expr(structure_graph, label_graph, node)
+        if text and text != "[anonymous class]":
+            return EquivalentExpression(source=source, operator="", members=[text])
+
+    return None
 
 def collect_alignment_targets(graph: Graph) -> dict[URIRef, set[URIRef]]:
     targets_by_subject: dict[URIRef, set[URIRef]] = {}
@@ -356,61 +709,114 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
         prefix = namespace_prefix_for_uri(uri)
         prefix_class = namespace_class_for_uri(uri)
         overlap_tag = " <span class='tag overlap'>shared</span>" if uri in shared_targets else ""
-        incoming_summary = ""
-        if node.incoming_rules:
-            lines = []
-            for source, rules in sorted(node.incoming_rules.items()):
-                source_prefix = source_namespace_prefix(source)
-                rule_markup = " ".join(
-                    f"<span class='rule-pill'>{html.escape(rule)}</span>"
-                    for rule in sorted(rules)
-                )
-                lines.append(f"<div class='mapping-line'><span class='ns-box ns-{source_prefix.lower()}'>{html.escape(source_prefix)}</span>{rule_markup}</div>")
-            incoming_summary = f"<div class='alignment-lines'>{''.join(lines)}</div>"
 
-        outgoing_summary = ""
-        if node.outgoing_rules:
+        restriction_summary = ""
+        if node.restrictions:
             lines = []
-            for source, rules in sorted(node.outgoing_rules.items()):
+            for source, restrictions in sorted(node.restrictions.items()):
                 source_prefix = source_namespace_prefix(source)
-                rule_markup = " ".join(
-                    f"<span class='rule-pill'>{html.escape(rule)}</span>"
-                    for rule in sorted(set(rules))
+                items = []
+                seen = set()
+                for r in restrictions:
+                    key = (r.property_label, r.kind, r.value_label)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    items.append(
+                        f"<span class='rule-pill'>{html.escape(r.property_label)} {html.escape(r.kind)} {html.escape(r.value_label)}</span>"
+                    )
+                if items:
+                    lines.append(
+                        f"<div class='mapping-line'>"
+                        f"<span class='inline-label'>Restrictions</span>"
+                        f"<span class='ns-box ns-{source_prefix.lower()}'>{html.escape(source_prefix)}</span>"
+                        f"{''.join(items)}"
+                        f"</div>"
+                    )
+            if lines:
+                restriction_summary = (
+                    f"<div class='meta-block'>"
+                    f"<div class='alignment-lines'>{''.join(lines)}</div>"
+                    f"</div>"
                 )
-                lines.append(f"<div class='mapping-line'><span class='ns-box ns-{source_prefix.lower()}'>{html.escape(source_prefix)}</span>{rule_markup}</div>")
-            outgoing_summary = f"<div class='alignment-lines'>{''.join(lines)}</div>"
+            
+        if node.equivalent_expressions:
+            restriction_summary = ""
 
         instance_summary = ""
         if node.incoming_instances:
             lines = []
             for source, instances in sorted(node.incoming_instances.items()):
                 source_prefix = source_namespace_prefix(source)
+                source_class = source_prefix.lower()
                 instance_markup = " ".join(
-                    f"<span class='instance-pill'>{html.escape(instance)}</span>"
+                    f"<span class='instance-pill {source_class}'>{html.escape(instance)}</span>"
                     for instance in sorted(instances)
                 )
-                lines.append(f"<div class='mapping-line'><span class='ns-box ns-{source_prefix.lower()}'>{html.escape(source_prefix)}</span>{instance_markup}</div>")
-            instance_summary = f"<div class='alignment-lines'>{''.join(lines)}</div>"
+                lines.append(
+                    f"<div class='mapping-line instances'>"
+                    f"<span class='inline-label'>CV terms</span>"
+                    f"<span class='ns-box ns-{source_class}'>{html.escape(source_prefix)}</span>"
+                    f"{instance_markup}"
+                    f"</div>"
+                )
+            instance_summary = (
+                f"<div class='meta-block'>"
+                f"<div class='alignment-lines'>{''.join(lines)}</div>"
+                f"</div>"
+            )
+
+        equivalent_summary = ""
+        if node.equivalent_expressions:
+            lines = []
+            for source, expressions in sorted(node.equivalent_expressions.items()):
+                source_prefix = source_namespace_prefix(source)
+                expr_chunks = []
+                for expr in expressions:
+                    if not expr.members:
+                        continue
+                    parts = [f"<span class='inline-label'>equivalent to</span>"]
+                    for i, member in enumerate(expr.members):
+                        if i > 0 and expr.operator:
+                            parts.append(f"<span class='op-pill'>{html.escape(expr.operator)}</span>")
+                        parts.append(f"<span class='rule-pill'>{html.escape(member)}</span>")
+                    expr_chunks.append("".join(parts))
+
+                if expr_chunks:
+                    lines.append(
+                        f"<div class='mapping-line'>"
+                        f"<span class='ns-box ns-{source_prefix.lower()}'>{html.escape(source_prefix)}</span>"
+                        f"{''.join(expr_chunks)}"
+                        f"</div>"
+                    )
+
+            if lines:
+                equivalent_summary = (
+                    f"<div class='meta-block'>"
+                    f"<div class='alignment-lines'>{''.join(lines)}</div>"
+                    f"</div>"
+                )
 
         child_markup = []
         for child in sorted(node.children & selected, key=lambda item: nodes[item].label.lower()):
             if child not in next_path:
                 child_markup.append(render_node(child, next_path))
 
-        child_id = node_dom_id(uri) + "-children"
         toggle_button = (
-            f"<span class='toggle-marker' aria-hidden='true'></span>"
+            "<span class='toggle-marker' aria-hidden='true'></span>"
             if child_markup
             else "<span class='toggle-marker hidden' aria-hidden='true'></span>"
         )
+
         if child_markup:
             return (
                 "<li>"
                 f"<details class='node ns-{prefix_class}' open>"
-                f"<summary class='node-header'>{toggle_button}<span class='ns-box ns-{prefix_class}'>{html.escape(prefix)}</span>"
+                f"<summary class='node-header'>{toggle_button}"
+                f"<span class='ns-box ns-{prefix_class}'>{html.escape(prefix)}</span>"
                 f"<span class='label'>{html.escape(node.label)}</span>"
                 f"<span class='uri'>{html.escape(str(uri))}</span>{overlap_tag}</summary>"
-                f"{outgoing_summary}{incoming_summary}{instance_summary}"
+                f"{equivalent_summary}{restriction_summary}{instance_summary}"
                 f"<div class='children'><ul>{''.join(child_markup)}</ul></div>"
                 "</details>"
                 "</li>"
@@ -419,10 +825,12 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
         return (
             "<li>"
             f"<div class='node ns-{prefix_class}'>"
-            f"<div class='node-header'>{toggle_button}<span class='ns-box ns-{prefix_class}'>{html.escape(prefix)}</span>"
+            f"<div class='node-header'>{toggle_button}"
+            f"<span class='ns-box ns-{prefix_class}'>{html.escape(prefix)}</span>"
             f"<span class='label'>{html.escape(node.label)}</span>"
             f"<span class='uri'>{html.escape(str(uri))}</span>{overlap_tag}</div>"
-            f"{outgoing_summary}{incoming_summary}{instance_summary}</div>"
+            f"{equivalent_summary}{restriction_summary}{instance_summary}"
+            f"</div>"
             "</li>"
         )
 
@@ -441,152 +849,319 @@ def build_html(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_targ
   <title>{html.escape(title)}</title>
   <style>
     :root {{
-      color-scheme: light;
-            --bg: #fafafa;
-            --panel: #ffffff;
-            --panel-soft: #f4f6f8;
-            --text: #20242a;
-            --muted: #5d6773;
-            --accent: #2b5b84;
-            --border: #d8dee6;
-            --chip: #e9edf2;
+      --bg: #fafafa;
+      --panel: #ffffff;
+      --panel-soft: #f4f6f8;
+      --text: #1f2937;
+      --muted: #5b6472;
+      --border: #d7dde5;
+      --tree-line: #dbe4ee;
+
+      --foodon-bg: #dbeafe;
+      --foodon-fg: #1e3a5f;
+      --foodon-border: #93c5fd;
+
+      --coso-bg: #f3e8d8;
+      --coso-fg: #6b4f2a;
+      --coso-border: #d6b98b;
+
+      --egad-bg: #f3d9eb;
+      --egad-fg: #7a1f5c;
+      --egad-border: #d38dbd;
+
+      --wqp-bg: #d9f0e8;
+      --wqp-fg: #195c49;
+      --wqp-border: #86c7ae;
+
+      --rule-bg: #fff4cc;
+      --rule-fg: #5e4b00;
+      --rule-border: #dcc777;
+
+      --instance-bg: #ffffff;
+      --instance-fg: #111827;
+      --instance-border: #111827;
+
+      --shared-bg: #fde7b0;
+      --shared-fg: #6b4e00;
     }}
+
     body {{
       margin: 0;
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
       color: var(--text);
     }}
+
     main {{
-            max-width: 1180px;
+      max-width: 1180px;
       margin: 0 auto;
-            padding: 20px 18px 28px;
+      padding: 20px 18px 28px;
     }}
+
     h1 {{
-            margin: 0 0 6px;
-            font-size: 1.45rem;
-            letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
     }}
+
     p {{
       color: var(--muted);
-            line-height: 1.35;
-            margin: 6px 0 0;
+      line-height: 1.35;
+      margin: 6px 0 0;
     }}
-    .legend, .summary {{
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin: 12px 0;
+
+    .legend,
+    .summary {{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 12px 0;
     }}
+
     .tags {{
       display: flex;
       flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
+      gap: 8px;
+      margin-top: 8px;
     }}
+
     .tag {{
-      display: inline-block;
-            padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.55rem;
       border-radius: 999px;
-            font-size: 0.72rem;
-            line-height: 1.25;
-            border: 1px solid var(--border);
-      background: var(--chip);
-            color: #334155;
+      border: 1px solid var(--border);
+      background: #eef2f7;
+      color: #334155;
+      font-size: 0.74rem;
+      line-height: 1.2;
     }}
-        .ns-box {{
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 3.4rem;
-            padding: 0.15rem 0.45rem;
-            border-radius: 2px;
-            border: 1px solid var(--border);
-            font-weight: 700;
-            letter-spacing: 0.04em;
-        }}
-        .instance-pill {{
-            display: inline-flex;
-            align-items: center;
-            padding: 0.18rem 0.55rem;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: #fff;
-            color: #111827;
-        }}
-        .rule-pill {{
-            display: inline-flex;
-            align-items: center;
-            padding: 0.18rem 0.55rem;
-            border-radius: 2px;
-            border: 1px solid #c7cfd8;
-            background: #fff7dd;
-            color: #5b4a14;
-            font-style: italic;
-        }}
-        .ns-foodon {{ background: #e7f0fa; color: #284766; }}
-        .ns-egad {{ background: #f7e7f0; color: #7a284e; }}
-        .ns-wqp {{ background: #e3f4ee; color: #1e6651; }}
-        .ns-coso {{ background: #f2ece4; color: #6a4e2f; }}
-        .node.ns-foodon {{ border-color: #c8d9ea; }}
-        .node.ns-egad {{ border-color: #e1bfd2; }}
-        .node.ns-wqp {{ border-color: #bfded5; }}
-        .node.ns-coso {{ border-color: #dfd1be; }}
-        .overlap {{ background: #f8e3c0; }}
-        .uri {{ color: var(--muted); font-size: 0.72rem; margin-left: 8px; word-break: break-all; }}
+
+    .tag.overlap {{
+      background: var(--shared-bg);
+      color: var(--shared-fg);
+      border-color: #e3c86b;
+    }}
+
+    .ns-box {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 3.3rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 0.76rem;
+    }}
+
+    .ns-foodon {{ background: var(--foodon-bg); color: var(--foodon-fg); border-color: var(--foodon-border); }}
+    .ns-coso {{ background: var(--coso-bg); color: var(--coso-fg); border-color: var(--coso-border); }}
+    .ns-egad {{ background: var(--egad-bg); color: var(--egad-fg); border-color: var(--egad-border); }}
+    .ns-wqp {{ background: var(--wqp-bg); color: var(--wqp-fg); border-color: var(--wqp-border); }}
+
+    .tree {{
+      margin-top: 10px;
+    }}
+
+    .tree > ul {{
+      border-left: 0;
+      padding-left: 0;
+    }}
+
+    ul {{
+      list-style: none;
+      margin: 0;
+      padding-left: 18px;
+      border-left: 1px solid var(--tree-line);
+    }}
+
+    li {{
+      margin: 5px 0;
+    }}
+
     .node {{
-            padding: 6px 8px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--panel-soft);
-            margin: 4px 0;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      margin: 4px 0;
     }}
-        details.node {{ padding: 0; }}
-        details.node > summary {{
-            list-style: none;
-            cursor: pointer;
-            margin: 0;
-        }}
-        details.node > summary::-webkit-details-marker {{ display: none; }}
-        .label {{ font-weight: 600; color: #111827; }}
-        ul {{ list-style: none; margin: 0; padding-left: 18px; border-left: 1px solid #e2e8f0; }}
-        li {{ margin: 4px 0; }}
-        .tree {{ margin-top: 10px; }}
-    .tree > ul {{ border-left: 0; padding-left: 0; }}
-        .summary-list {{ padding-left: 16px; }}
-    .summary-list li {{ margin: 4px 0; }}
-        .node-header {{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }}
-        .toggle-marker {{
-            display: inline-flex;
-            width: 1rem;
-            justify-content: center;
-            color: #64748b;
-            font-size: 0.95rem;
-            flex: 0 0 auto;
-        }}
-        details[open] > summary .toggle-marker::before {{ content: "▾"; }}
-        details:not([open]) > summary .toggle-marker::before {{ content: "▸"; }}
-        .toggle-marker.hidden {{ visibility: hidden; }}
-        details.node > .children {{ margin-top: 2px; }}
-        .alignment-lines {{ margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }}
-        .mapping-line {{ display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }}
-        @media print {{
-            body {{ background: #fff; }}
-            main {{ max-width: none; padding: 0; }}
-            .legend, .summary, .node {{ break-inside: avoid; }}
-            .tag.overlap {{ background: #ead2a8; }}
-        }}
+
+    .node.ns-foodon {{ border-color: var(--foodon-border); }}
+    .node.ns-coso {{ border-color: var(--coso-border); }}
+    .node.ns-egad {{ border-color: var(--egad-border); }}
+    .node.ns-wqp {{ border-color: var(--wqp-border); }}
+
+    details.node {{
+      padding: 0;
+    }}
+
+    details.node > summary {{
+      list-style: none;
+      cursor: pointer;
+      margin: 0;
+    }}
+
+    details.node > summary::-webkit-details-marker {{
+      display: none;
+    }}
+
+    details.node > .children {{
+      margin-top: 4px;
+    }}
+
+    .node-header {{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }}
+
+    .label {{
+      font-weight: 650;
+      color: #111827;
+    }}
+
+    .uri {{
+      color: var(--muted);
+      font-size: 0.72rem;
+      margin-left: 8px;
+      word-break: break-all;
+    }}
+
+    .toggle-marker {{
+      display: inline-flex;
+      width: 1rem;
+      justify-content: center;
+      color: #64748b;
+      font-size: 0.95rem;
+      flex: 0 0 auto;
+    }}
+
+    details[open] > summary .toggle-marker::before {{
+      content: "▾";
+    }}
+
+    details:not([open]) > summary .toggle-marker::before {{
+      content: "▸";
+    }}
+
+    .toggle-marker.hidden {{
+      visibility: hidden;
+    }}
+
+    .meta-block {{
+      margin-top: 7px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }}
+
+    .alignment-lines {{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }}
+
+    .mapping-line {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }}
+
+    .inline-label {{
+      display: inline-flex;
+      align-items: center;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #475569;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }}
+
+    .rule-pill {{
+      display: inline-flex;
+      align-items: center;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid var(--rule-border);
+      background: var(--rule-bg);
+      color: var(--rule-fg);
+      font-style: italic;
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }}
+
+    .instance-pill {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.08rem 0.58rem;
+      border-radius: 999px;
+      border: 2px solid var(--instance-border);
+      background: var(--instance-bg);
+      color: var(--instance-fg);
+      font-weight: 700;
+      font-size: 0.8rem;
+      line-height: 1.1;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    }}
+
+    .instance-pill.legend-instance {{
+      background: #ffffff;
+      border: 1px solid #111827;
+      color: #111827;
+      box-shadow: none;
+    }}
+
+    .op-pill {{
+      display: inline-flex;
+      align-items: center;
+      padding: 0.12rem 0.42rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.1;
+      text-transform: lowercase;
+    }}
+
+    .mapping-line.instances .ns-box.ns-egad + .instance-pill,
+    .mapping-line.instances .instance-pill.egad {{
+      border-color: var(--egad-fg);
+    }}
+
+    .mapping-line.instances .ns-box.ns-wqp + .instance-pill,
+    .mapping-line.instances .instance-pill.wqp {{
+      border-color: var(--wqp-fg);
+    }}
+
+    @media print {{
+      body {{ background: #fff; }}
+      main {{ max-width: none; padding: 0; }}
+      .legend, .summary, .node {{ break-inside: avoid; }}
+    }}
   </style>
 </head>
 <body>
   <main>
     <h1>{html.escape(title)}</h1>
-        <p>Hierarchy extracted from the ontology sources, with EGAD and WQP highlights shown inline where they map onto FOODON and COSO classes.</p>
+    <p>Hierarchy extracted from the ontology sources, with FOODON/COSO classes, EGAD and WQP controlled vocabulary terms, and class restrictions shown inline.</p>
     <section class='legend'>
-            <strong>Namespaces</strong>
+      <strong>Namespaces</strong>
       <div class='tags'>
-                {''.join(f"<span class='ns-box ns-{ns.lower()}'>{html.escape(ns)}</span>" for ns in namespaces)}
+        {''.join(f"<span class='ns-box ns-{ns.lower()}'>{html.escape(ns)}</span>" for ns in namespaces)}
+        <span class='instance-pill legend-instance'>instances</span>
       </div>
     </section>
     <section class='tree'>

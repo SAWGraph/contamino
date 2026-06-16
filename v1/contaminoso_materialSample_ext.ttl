@@ -158,7 +158,7 @@ coso:AirSample rdf:type owl:Class;
 # FOODON alignment
 #############################################################
 
-coso:AnimalMaterialSample owl:unionOf (
+coso:AnimalMaterialSample owl:equivalentClass [ owl:unionOf (
             [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_03420164]  # some animal material
@@ -168,7 +168,7 @@ coso:AnimalMaterialSample owl:unionOf (
             coso:AnimalBloodSample
             coso:AnimalTissueSample
             coso:AnimalOrganSample
-            coso:AnimalMilkSample).  
+            coso:AnimalMilkSample) ].  
 
 coso:AnimalBloodSample owl:equivalentClass [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
@@ -186,7 +186,7 @@ coso:AnimalMilkSample owl:equivalentClass [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_02010012] . #some animal milk
 
-coso:PlantMaterialSample owl:unionOf (
+coso:PlantMaterialSample owl:equivalentClass [owl:unionOf (
           [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_00004331 ] # some plant material
@@ -196,9 +196,9 @@ coso:PlantMaterialSample owl:unionOf (
           [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_00001015 ] # or some plant food product
-).   
+)].   
 
-coso:PlantAbovegroundSample owl:unionOf (
+coso:PlantAbovegroundSample owl:equivalentClass [owl:unionOf (
       [rdf:type owl:Restriction;
       owl:onProperty coso:sampleOfMaterialType;
       owl:someValuesFrom obo:FOODON_03420144] #plant above surface, excluding fruit and seed
@@ -220,15 +220,15 @@ coso:PlantAbovegroundSample owl:unionOf (
       [rdf:type owl:Restriction;
       owl:onProperty coso:sampleOfMaterialType;
       owl:someValuesFrom obo:FOODON_00001057] #plant fruit food product
-      ). 
+      )]. 
 
-coso:PlantUndergroundSample owl:unionOf ( [rdf:type owl:Restriction;
+coso:PlantUndergroundSample owl:equivalentClass [ owl:unionOf ( [rdf:type owl:Restriction;
       owl:onProperty coso:sampleOfMaterialType;
       owl:someValuesFrom obo:FOODON_03420238] #root, tuber or bulb
       [rdf:type owl:Restriction;
       owl:onProperty coso:sampleOfMaterialType;
       owl:someValuesFrom obo:FOODON_00002150] #plant root vegetable food product
-      ).
+      )].
 
 ########################
 # Property Chain 

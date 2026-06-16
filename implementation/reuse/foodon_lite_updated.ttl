@@ -3,15 +3,14 @@
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix terms: <http://purl.org/dc/terms/> .
 @prefix schema: <http://schema.org/> .
 @prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
-@base <http://purl.obolibrary.org/obo/your_ontology/external/foodon_lite.owl#> .
+@base <http://w3id.org/sawgraph/external/foodon_lite#> .
 
- <http://w3id.org/sawgraph/external/foodon_lite#> rdf:type owl:Ontology .
+<http://w3id.org/sawgraph/external/foodon_lite#> rdf:type owl:Ontology .
 
 #################################################################
 #    Annotation properties
@@ -19,17 +18,17 @@
 
 ###  http://purl.obolibrary.org/obo/IAO_0000111
 obo:IAO_0000111 rdf:type owl:AnnotationProperty ;
-                obo:IAO_0000111 "editor preferred label" ,
-                                "editor preferred label"@en ,
-                                "editor preferred term" ,
+                obo:IAO_0000111 "editor preferred label"@en ,
                                 "editor preferred term"@en ,
+                                "editor preferred label" ,
+                                "editor preferred term" ,
                                 "editor preferred term~editor preferred label" ;
                 obo:IAO_0000115 "The concise, meaningful, and human-friendly name for a class or property preferred by the ontology developers. (US-English)"@en ;
                 obo:IAO_0000119 "GROUP:OBI:<http://purl.obolibrary.org/obo/obi>"@en ;
-                rdfs:label "editor preferred label" ,
-                           "editor preferred label"@en ,
-                           "editor preferred term" ,
+                rdfs:label "editor preferred label"@en ,
                            "editor preferred term"@en ,
+                           "editor preferred label" ,
+                           "editor preferred term" ,
                            "editor preferred term~editor preferred label" .
 
 
@@ -42,16 +41,16 @@ obo:IAO_0000112 rdf:type owl:AnnotationProperty ;
 
 ###  http://purl.obolibrary.org/obo/IAO_0000115
 obo:IAO_0000115 rdf:type owl:AnnotationProperty ;
-                obo:IAO_0000111 "definition" ,
-                                "definition"@en ,
+                obo:IAO_0000111 "definition"@en ,
+                                "definition" ,
                                 "textual definition" ;
-                obo:IAO_0000115 "A property representing the English language definitions of what NCI means by the concept. They may also include information about the definition's source and attribution in a form that can easily be interpreted by software." ,
-                                "English language definitions of what NCI means by the concept. These are limited to 1024 characters. They may also include information about the definition's source and attribution in a form that can easily be interpreted by software." ,
-                                "The official OBI definition, explaining the meaning of a class or property. Shall be Aristotelian, formalized and normalized. Can be augmented with colloquial definitions."@en ,
-                                "The official definition, explaining the meaning of a class or property. Shall be Aristotelian, formalized and normalized. Can be augmented with colloquial definitions."@en ;
+                obo:IAO_0000115 "The official OBI definition, explaining the meaning of a class or property. Shall be Aristotelian, formalized and normalized. Can be augmented with colloquial definitions."@en ,
+                                "The official definition, explaining the meaning of a class or property. Shall be Aristotelian, formalized and normalized. Can be augmented with colloquial definitions."@en ,
+                                "A property representing the English language definitions of what NCI means by the concept. They may also include information about the definition's source and attribution in a form that can easily be interpreted by software." ,
+                                "English language definitions of what NCI means by the concept. These are limited to 1024 characters. They may also include information about the definition's source and attribution in a form that can easily be interpreted by software." ;
                 obo:IAO_0000119 "GROUP:OBI:<http://purl.obolibrary.org/obo/obi>"@en ;
-                rdfs:label "definition" ,
-                           "definition"@en ,
+                rdfs:label "definition"@en ,
+                           "definition" ,
                            "textual definition" .
 
 
@@ -65,8 +64,8 @@ obo:IAO_0000118 rdf:type owl:AnnotationProperty ;
                 obo:IAO_0000115 "A label for a class or property that can be used to refer to the class or property instead of the preferred rdfs:label. Alternative labels should be used to indicate community- or context-specific labels, abbreviations, shorthand forms and the like."@en ;
                 obo:IAO_0000119 "GROUP:OBI:<http://purl.obolibrary.org/obo/obi>"@en ;
                 rdfs:label "alternative label"@en ,
-                           "alternative term" ,
                            "alternative term"@en ,
+                           "alternative term" ,
                            "alternative_term" .
 
 
@@ -75,11 +74,11 @@ obo:IAO_0000119 rdf:type owl:AnnotationProperty ;
                 obo:IAO_0000111 "definition source"@en ;
                 obo:IAO_0000115 "Formal citation, e.g. identifier in external database to indicate / attribute source(s) for the definition. Free text indicate / attribute source(s) for the definition. EXAMPLE: Author Name, URI, MeSH Term C04, PUBMED ID, Wiki uri on 31.01.2007"@en ,
                                 "formal citation, e.g. identifier in external database to indicate / attribute source(s) for the definition. Free text indicate / attribute source(s) for the definition. EXAMPLE: Author Name, URI, MeSH Term C04, PUBMED ID, Wiki uri on 31.01.2007"@en ;
-                obo:IAO_0000119 "Discussion on obo-discuss mailing-list, see http://bit.ly/hgm99w" ,
-                                "Discussion on obo-discuss mailing-list, see http://bit.ly/hgm99w"@en ,
-                                "GROUP:OBI:<http://purl.obolibrary.org/obo/obi>"@en ;
-                rdfs:label "definition source" ,
-                           "definition source"@en ,
+                obo:IAO_0000119 "Discussion on obo-discuss mailing-list, see http://bit.ly/hgm99w"@en ,
+                                "GROUP:OBI:<http://purl.obolibrary.org/obo/obi>"@en ,
+                                "Discussion on obo-discuss mailing-list, see http://bit.ly/hgm99w" ;
+                rdfs:label "definition source"@en ,
+                           "definition source" ,
                            "definition_source" .
 
 
@@ -129,7 +128,6 @@ schema:image rdf:type owl:AnnotationProperty ;
 oboInOwl:default-namespace rdf:type owl:AnnotationProperty .
 
 
-
 ###  http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym
 oboInOwl:hasBroadSynonym rdf:type owl:AnnotationProperty ;
                          obo:IAO_0000115 "An alternative label for a class or property which has a more general meaning than the preferred name/primary label." ;
@@ -173,10 +171,10 @@ rdfs:comment rdf:type owl:AnnotationProperty .
 
 ###  http://www.w3.org/2000/01/rdf-schema#label
 rdfs:label rdf:type owl:AnnotationProperty ;
-           obo:IAO_0000111 "label" ,
-                           "label"@en ;
-           rdfs:label "label" ,
-                      "label"@en .
+           obo:IAO_0000111 "label"@en ,
+                           "label" ;
+           rdfs:label "label"@en ,
+                      "label" .
 
 
 #################################################################
@@ -198,8 +196,8 @@ obo:BFO_0000050 rdf:type owl:ObjectProperty ,
                 obo:IAO_0000118 "part_of"@en ;
                 obo:IAO_0000412 obo:foodon.owl ,
                                 obo:ro.owl ;
-                rdfs:label "part of" ,
-                           "part of"@en ,
+                rdfs:label "part of"@en ,
+                           "part of" ,
                            "part_of" .
 
 
@@ -211,8 +209,8 @@ obo:BFO_0000051 rdf:type owl:ObjectProperty ,
                 obo:IAO_0000412 obo:foodon.owl ,
                                 obo:obi.owl ,
                                 obo:ro.owl ;
-                rdfs:label "has part" ,
-                           "has part"@en ,
+                rdfs:label "has part"@en ,
+                           "has part" ,
                            "has_part" .
 
 
@@ -305,12 +303,12 @@ obo:RO_0009004 rdf:type owl:ObjectProperty ;
 ###  http://purl.obolibrary.org/obo/BFO_0000020
 obo:BFO_0000020 rdf:type owl:Class ;
                 obo:IAO_0000111 "specifically dependent continuant"@en ;
-                obo:IAO_0000115 "A continuant that inheres in or is borne by other entities. Every instance of A requires some specific instance of B which must always be the same." ,
-                                "A continuant that inheres in or is borne by other entities. Every instance of A requires some specific instance of B which must always be the same."@en ,
-                                "b is a relational specifically dependent continuant = Def. b is a specifically dependent continuant and there are n &gt; 1 independent continuants c1, … cn which are not spatial regions are such that for all 1  i &lt; j  n, ci  and cj share no common parts, are such that for each 1  i  n, b s-depends_on ci at every time t during the course of b’s existence (axiom label in BFO2 Reference: [131-004])" ,
+                obo:IAO_0000115 "A continuant that inheres in or is borne by other entities. Every instance of A requires some specific instance of B which must always be the same."@en ,
                                 "b is a relational specifically dependent continuant = Def. b is a specifically dependent continuant and there are n &gt; 1 independent continuants c1, … cn which are not spatial regions are such that for all 1  i &lt; j  n, ci  and cj share no common parts, are such that for each 1  i  n, b s-depends_on ci at every time t during the course of b’s existence (axiom label in BFO2 Reference: [131-004])"@en ,
-                                "b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])" ,
-                                "b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])"@en ;
+                                "b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])"@en ,
+                                "A continuant that inheres in or is borne by other entities. Every instance of A requires some specific instance of B which must always be the same." ,
+                                "b is a relational specifically dependent continuant = Def. b is a specifically dependent continuant and there are n &gt; 1 independent continuants c1, … cn which are not spatial regions are such that for all 1  i &lt; j  n, ci  and cj share no common parts, are such that for each 1  i  n, b s-depends_on ci at every time t during the course of b’s existence (axiom label in BFO2 Reference: [131-004])" ,
+                                "b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])" ;
                 obo:IAO_0000412 obo:agro.owl ,
                                 obo:envo.owl ,
                                 obo:foodon.owl ,
@@ -318,16 +316,16 @@ obo:BFO_0000020 rdf:type owl:Class ;
                                 obo:ons.owl ,
                                 obo:uberon.owl ;
                 rdfs:label "characteristic"@en ,
+                           "specifically dependent continuant"@en ,
                            "material property" ,
-                           "specifically dependent continuant" ,
-                           "specifically dependent continuant"@en .
+                           "specifically dependent continuant" .
 
 
 ###  http://purl.obolibrary.org/obo/BFO_0000040
 obo:BFO_0000040 rdf:type owl:Class ;
                 obo:IAO_0000111 "material entity"@en ;
-                obo:IAO_0000115 "An independent continuant that is spatially extended whose identity is independent of that of other entities and can be maintained through time." ,
-                                "An independent continuant that is spatially extended whose identity is independent of that of other entities and can be maintained through time."@en ;
+                obo:IAO_0000115 "An independent continuant that is spatially extended whose identity is independent of that of other entities and can be maintained through time."@en ,
+                                "An independent continuant that is spatially extended whose identity is independent of that of other entities and can be maintained through time." ;
                 obo:IAO_0000412 obo:agro.owl ,
                                 obo:cdno.owl ,
                                 obo:cob.owl ,
@@ -338,8 +336,8 @@ obo:BFO_0000040 rdf:type owl:Class ;
                                 obo:ons.owl ,
                                 obo:po.owl ,
                                 obo:uberon.owl ;
-                rdfs:label "material entity" ,
-                           "material entity"@en .
+                rdfs:label "material entity"@en ,
+                           "material entity" .
 
 
 ###  http://purl.obolibrary.org/obo/COB_0000022
@@ -369,10 +367,6 @@ obo:FOODON_00001006 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:FOODON_03411134
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400150
                                     ] ;
                     obo:IAO_0000115 "A food product made of meat, the skeletal muscle and associated fat, and other edible tissues such as organs, livers, skin, brains, bone marrow, kidneys, or lungs, of mammals." ;
                     obo:IAO_0000119 <https://en.wikipedia.org/wiki/Meat> ;
@@ -410,6 +404,31 @@ obo:FOODON_00001041 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2025-02-01T09:59:11Z"^^xsd:dateTime ;
                     rdfs:label "cow food product"@en .
+
+###  http://purl.obolibrary.org/obo/FOODON_00001057
+obo:FOODON_00001057 rdf:type owl:Class ;
+                    owl:equivalentClass [ owl:intersectionOf ( obo:FOODON_00001261
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty obo:RO_0001000 ;
+                                                                 owl:someValuesFrom obo:FOODON_03411140
+                                                               ]
+                                                             ) ;
+                                          rdf:type owl:Class
+                                        ] ;
+                    rdfs:subClassOf obo:FOODON_00001261 ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty obo:RO_0001000 ;
+                                      owl:someValuesFrom obo:FOODON_03411140
+                                    ] ;
+                    obo:IAO_0000115 "A food product derived from plant fruit."@en ;
+                    obo:IAO_0000412 obo:foodon.owl ;
+                    rdfs:label "plant fruit food product"@en .
+
+
+###  http://purl.obolibrary.org/obo/FOODON_00001175
+obo:FOODON_00001175 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_00001015 ;
+                    rdfs:label "plant stem food product"@en .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_00001092
@@ -486,10 +505,6 @@ obo:FOODON_00001172 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:FOODON_03411213
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400260
                                     ] ;
                     obo:IAO_0000116 "The default nut product is a whole, raw nut - meaning that the kernel is whole, and moderately or significantly dried, but not baked.  Minimal references to nuts often leave ambiguous whether the shell is on or off. \"I ate a peanut\" doesn't clarify whether I ate a shell-off nut or whether I did the shelling."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
@@ -510,11 +525,7 @@ obo:FOODON_00001242 rdf:type owl:Class ;
                                                         obo:FOODON_03303380
                                                       )
                                         ] ;
-                    rdfs:subClassOf obo:FOODON_00001015 ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400113
-                                    ] ;
+                    rdfs:subClassOf obo:FOODON_00001015 ;
                     obo:IAO_0000115 "A food product that has some spice or herb as a defining ingredient."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2023-08-16T10:14:35Z"^^xsd:dateTime ;
@@ -537,10 +548,6 @@ obo:FOODON_00001248 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:FOODON_03411222
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400267
                                     ] ;
                     obo:IAO_0000115 "A fish food product includes products made from any fish species (aquatic vertebrate with gills and fins)."@en ;
                     obo:IAO_0000119 <https://en.wikipedia.org/wiki/Fish> ;
@@ -555,10 +562,6 @@ obo:FOODON_00001256 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:UBERON_0001913
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400148
                                     ] ;
                     obo:IAO_0000115 "A dairy food product has mammilian milk or a milk component as an ingredient."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
@@ -581,10 +584,6 @@ obo:FOODON_00001261 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:FOODON_03411579
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400152
                                     ] ;
                     obo:IAO_0000115 "A plant food product which derives from one or more vegetables."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
@@ -798,6 +797,14 @@ obo:FOODON_00002616 rdf:type owl:Class ;
                     rdfs:comment "An avian animal which is dead or alive and has a relatively intact body."@en ;
                     rdfs:label "avian animal"@en .
 
+###  http://purl.obolibrary.org/obo/FOODON_00002679
+obo:FOODON_00002679 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_03308311 ;
+                    obo:IAO_0000115 "A fish fillet, from the French word filet meaning a thread or strip, is the flesh of a fish which has been cut or sliced away from the bone by cutting lengthwise along one side of the fish parallel to the backbone."@en ;
+                    obo:IAO_0000119 "https://en.wikipedia.org/wiki/Fish_fillet"^^xsd:anyURI ;
+                    terms:date "2019-06-27T07:06:43Z"^^xsd:dateTime ;
+                    schema:image "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Pangasius_meat.jpg/320px-Pangasius_meat.jpg"^^xsd:anyURI ;
+                    rdfs:label "fish fillet"@en .
 
 ###  http://purl.obolibrary.org/obo/FOODON_00003004
 obo:FOODON_00003004 rdf:type owl:Class ;
@@ -890,15 +897,6 @@ obo:FOODON_00004298 rdf:type owl:Class ;
                     rdfs:label "poultry"@en .
 
 
-###  http://purl.obolibrary.org/obo/FOODON_00004328
-obo:FOODON_00004328 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03420116 ;
-                    obo:IAO_0000115 "A piece or pieces or amount of substance derived from one or more organisms."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    terms:date "2023-03-02T22:30:19Z"^^xsd:dateTime ;
-                    rdfs:label "organism piece"@en .
-
-
 ###  http://purl.obolibrary.org/obo/FOODON_00004331
 obo:FOODON_00004331 rdf:type owl:Class ;
                     rdfs:subClassOf obo:FOODON_03420116 ;
@@ -910,16 +908,7 @@ obo:FOODON_00004331 rdf:type owl:Class ;
 
 ###  http://purl.obolibrary.org/obo/FOODON_00004332
 obo:FOODON_00004332 rdf:type owl:Class ;
-                    owl:equivalentClass [ owl:intersectionOf ( obo:FOODON_00004328
-                                                               [ rdf:type owl:Restriction ;
-                                                                 owl:onProperty obo:RO_0002162 ;
-                                                                 owl:someValuesFrom obo:NCBITaxon_33208
-                                                               ]
-                                                             ) ;
-                                          rdf:type owl:Class
-                                        ] ;
-                    rdfs:subClassOf obo:FOODON_00004328 ,
-                                    obo:FOODON_03420164 ;
+                    rdfs:subClassOf obo:FOODON_03420164 ;
                     obo:IAO_0000115 "A severed part of an animal."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2023-08-01T21:25:29Z"^^xsd:dateTime ;
@@ -928,8 +917,7 @@ obo:FOODON_00004332 rdf:type owl:Class ;
 
 ###  http://purl.obolibrary.org/obo/FOODON_00004333
 obo:FOODON_00004333 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_00004328 ,
-                                    obo:FOODON_00004331 ;
+                    rdfs:subClassOf obo:FOODON_00004331 ;
                     obo:IAO_0000115 "An anatomical or other piece derived from a plant."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2023-03-02T22:34:32Z"^^xsd:dateTime ;
@@ -1799,6 +1787,13 @@ obo:FOODON_03000165 rdf:type owl:Class ;
                     terms:date "2025-11-07T00:57:03Z"^^xsd:dateTime ;
                     rdfs:label "fish material"@en .
 
+###  http://purl.obolibrary.org/obo/FOODON_03308311
+obo:FOODON_03308311 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_03301077 ;
+                    rdfs:comment """SIREN DB annotation:
+* sliced FOODON:03430137
+* skeletal meat part FOODON:03420175"""@en ;
+                    rdfs:label "fish (portion cut)"@en .
 
 ###  http://purl.obolibrary.org/obo/FOODON_03301750
 obo:FOODON_03301750 rdf:type owl:Class ;
@@ -1813,6 +1808,15 @@ obo:FOODON_03301750 rdf:type owl:Class ;
 * non-food animal as food consumer FOODON:03510013
 * food animal as consumer FOODON:03510015"""@en ;
                     rdfs:label "forage (animal feed)"@en .
+
+### http://purl.obolibrary.org/obo/FOODON_03301077
+
+obo:FOODON_03301077 rdf:type owl:Class;
+        rdfs:label "fish (whole or pieces)"@en;
+        rdfs:subClassOf obo:FOODON_00001248;
+        rdfs:comment """SIREN DB annotation:
+* part of animal FOODON:03420164"""@en;
+        obo:IAO_0000412 obo:foodon.owl .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_03301761
@@ -1834,10 +1838,6 @@ obo:FOODON_03302001 rdf:type owl:Class ;
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty obo:RO_0001000 ;
                                       owl:someValuesFrom obo:FOODON_03411134
-                                    ] ,
-                                    [ rdf:type owl:Restriction ;
-                                      owl:onProperty obo:RO_0002350 ;
-                                      owl:someValuesFrom obo:FOODON_03400217
                                     ] ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     rdfs:comment """SIREN DB annotation:
@@ -1904,123 +1904,6 @@ obo:FOODON_03317170 rdf:type owl:Class ;
                     rdfs:comment """SIREN DB annotation:
 * animal body or body part FOODON:03420127"""@en ;
                     rdfs:label "meat (whole or pieces)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400113
-obo:FOODON_03400113 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400133 ;
-                    obo:IAO_0000115 "Aromatic or pungent plant product used whole or ground as a seasoning in food products."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    oboInOwl:hasSynonym "herb or spice"@en ;
-                    rdfs:label "spice or herb (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400133
-obo:FOODON_03400133 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03401270 ;
-                    obo:IAO_0000115 "Product that imparts or helps to impart a taste or aroma in food (21 CFR.170.3(n)(26). [FDA CFSAN 1995]"@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    oboInOwl:hasSynonym "seasoning or flavoring"@en ;
-                    rdfs:label "flavoring or seasoning (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400148
-obo:FOODON_03400148 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400164 ;
-                    obo:IAO_0000115 "Milk in all forms, milk-based beverage, cultured milk product, or milk or milk product analog. Index infant formula under *MEAL REPLACEMENT*."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "milk or milk product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400150
-obo:FOODON_03400150 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400217 ;
-                    obo:IAO_0000115 "Meat (flesh and organs including blood and bone marrow) from mammals. Used for meat in all forms including cured meat, sausage or luncheon meat and meat product analogs."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "meat or meat product (from mammal) (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400152
-obo:FOODON_03400152 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400257 ;
-                    obo:IAO_0000115 "Vegetables in all forms except where a use-related product type descriptior (such as *PREPARED FOOD PRODUCT* or *SNACK FOOD*) takes precedence."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "vegetable or vegetable product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400164
-obo:FOODON_03400164 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03401270 ;
-                    obo:IAO_0000115 "Milk, a product derived from milk, or a dairy product analog; includes cheese and frozen dairy desserts. [FDA CFSAN 1995]"@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "dairy product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400217
-obo:FOODON_03400217 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03401270 ;
-                    obo:IAO_0000115 "Products of the flesh of animals. [FDA CFSAN 1995]"@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "meat, poultry, seafood or related product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400257
-obo:FOODON_03400257 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03401270 ;
-                    obo:IAO_0000115 "Fruits and vegetables in all forms. [FDA CFSAN 1995]"@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "fruit or vegetable product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400260
-obo:FOODON_03400260 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400306 ;
-                    obo:IAO_0000115 "Nuts in all forms, including nut butters and pastes."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "nut or nut product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400267
-obo:FOODON_03400267 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400217 ;
-                    obo:IAO_0000115 "Flesh from fish or shellfish. Includes seafood product analogs and seafood-based sausage or luncheon meat as well as such products as squid ink and clam juice."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "seafood or seafood product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400289
-obo:FOODON_03400289 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400361 ;
-                    obo:IAO_0000115 "Food group having common consumption, functional or manufacturing characteristics, e.g. *FRUIT OR VEGETABLE PRODUCT*, *DAIRY PRODUCT*, *CONFECTIONARY*, *PREPARED FOOD PRODUCT*, etc. [FDA CFSAN 1995]"@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:comment "LanguaL curation note: This term is for CLASSIFICATION ONLY; DO NOT USE term in indexing. Use a more precise narrower term."@en ;
-                    rdfs:label "USA agency food product type"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400306
-obo:FOODON_03400306 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03401270 ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:label "nut or seed product (us cfr)"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03400361
-obo:FOODON_03400361 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_00002403 ;
-                    obo:IAO_0000115 "An agency food product type is a class of food product defined by an agency or consortium."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:comment "This class is designed to hold 3rd party food classification schemes which are being mapped to FoodOn classes using the 'has member' relation. The two hierarchies are not melded into a subclass polyhierarchy because of possible logical inconsistencies in the agency schemes. The hierarchies of agency schemes are as true to their agency representation as possible."@en ;
-                    rdfs:label "agency food product type"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_03401270
-obo:FOODON_03401270 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03400289 ;
-                    obo:IAO_0000115 "Food and Drugs, title 21, Code of Federal Regulations. Original food classification in LanguaL."@en ;
-                    obo:IAO_0000412 obo:foodon.owl ;
-                    rdfs:comment "LanguaL curation note: This term is for CLASSIFICATION ONLY; DO NOT USE term in indexing. Use a more precise narrower term."@en ;
-                    rdfs:label "U.S. code of federal regulations, title 21 food product type"@en ;
-                    rdfs:seeAlso "https://www.ecfr.gov/cgi-bin/text-idx?SID=87f720ce0d0b6c4548f4bbfd1f8e4c3d&mc=true&tpl=/ecfrbrowse/Title21/21chapterI.tpl"^^xsd:anyURI .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_03411021
@@ -2136,10 +2019,16 @@ obo:FOODON_03411136 rdf:type owl:Class ;
                                              "sus domesticus"@en ,
                                              "sus scrofa"@en ,
                                              "sus scrofa domesticus"@en ;
-                    oboInOwl:hasNarrowSynonym "Sus scrofa Linnaeus, 1758" ,
-                                              "hog"@en ,
-                                              "pig"@en ;
+                    oboInOwl:hasNarrowSynonym "hog"@en ,
+                                              "pig"@en ,
+                                              "Sus scrofa Linnaeus, 1758" ;
                     rdfs:label "swine"@en .
+
+###  http://purl.obolibrary.org/obo/FOODON_03411140
+obo:FOODON_03411140 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:PO_0000003 ;
+                    obo:IAO_0000412 obo:foodon.owl ;
+                    rdfs:label "fruit-producing plant"@en .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_03411143
@@ -2197,13 +2086,13 @@ obo:FOODON_03411177 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     oboInOwl:hasExactSynonym "American perch"@en ,
                                              "Dodd fish"@en ,
-                                             "Perca flavescens" ,
                                              "coontail"@en ,
                                              "lake perch"@en ,
                                              "raccoon perch"@en ,
                                              "ring-tail perch"@en ,
                                              "ringed perch"@en ,
-                                             "striped perch"@en ;
+                                             "striped perch"@en ,
+                                             "Perca flavescens" ;
                     oboInOwl:hasSynonym "perca flavescens"@en ;
                     rdfs:label "yellow perch"@en .
 
@@ -2464,9 +2353,9 @@ obo:FOODON_03411398 rdf:type owl:Class ;
                     oboInOwl:hasExactSynonym "sander vitreus"@en ,
                                              "stizostedion vitreum"@en ,
                                              "stizostedion vitreum vitreum"@en ,
-                                             "walleye" ,
                                              "walleye"@en ,
-                                             "yellow pike"@en ;
+                                             "yellow pike"@en ,
+                                             "walleye" ;
                     rdfs:label "walleye pike"@en .
 
 
@@ -2506,8 +2395,8 @@ obo:FOODON_03411457 rdf:type owl:Class ;
                     obo:IAO_0000115 "A whole chicken."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2025-02-01T09:59:11Z"^^xsd:dateTime ;
-                    oboInOwl:hasNarrowSynonym "Gallus gallus (Linnaeus, 1758)" ,
-                                              "Gallus gallus (Linnaeus, 1758)"@en ;
+                    oboInOwl:hasNarrowSynonym "Gallus gallus (Linnaeus, 1758)"@en ,
+                                              "Gallus gallus (Linnaeus, 1758)" ;
                     rdfs:comment "A chicken which is dead or alive and has a relatively intact body."@en ;
                     rdfs:label "chicken"@en ;
                     rdfs:seeAlso "https://www.usda.gov/media/blog/2011/11/17/poultry-classifications-get-21st-century-upgrade" .
@@ -2807,8 +2696,8 @@ obo:FOODON_03412112 rdf:type owl:Class ;
                     rdfs:subClassOf obo:FOODON_03411433 ;
                     obo:IAO_0000115 "Mollusca is a large phylum of invertebrate animals whose members are known as molluscs or mollusks. Molluscs are the largest marine phylum, comprising about 23% of all the named marine organisms. Numerous molluscs also live in freshwater and terrestrial habitats. [https://en.wikipedia.org/wiki/Mollusca]"@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
-                    oboInOwl:hasExactSynonym "Mollusca" ,
-                                             "mollusk"@en ;
+                    oboInOwl:hasExactSynonym "mollusk"@en ,
+                                             "Mollusca" ;
                     rdfs:label "mollusc"@en .
 
 
@@ -2858,11 +2747,11 @@ obo:FOODON_03412182 rdf:type owl:Class ;
                                              "gilsdorf bass"@en ,
                                              "green bass"@en ,
                                              "large mouth bass"@en ,
-                                             "largemouth blackbass" ,
                                              "largies"@en ,
                                              "northern largemouth"@en ,
                                              "southern largemouth"@en ,
-                                             "widemouth bass"@en ;
+                                             "widemouth bass"@en ,
+                                             "largemouth blackbass" ;
                     oboInOwl:hasSynonym "black bass"@en ,
                                         "micropterus salmoides"@en ;
                     rdfs:label "largemouth bass"@en .
@@ -2945,8 +2834,8 @@ obo:FOODON_03412582 rdf:type owl:Class ;
                                       owl:someValuesFrom obo:NCBITaxon_75288
                                     ] ;
                     obo:IAO_0000412 obo:foodon.owl ;
-                    oboInOwl:hasExactSynonym "flathead catfish" ,
-                                             "flathead catfish"@en ;
+                    oboInOwl:hasExactSynonym "flathead catfish"@en ,
+                                             "flathead catfish" ;
                     oboInOwl:hasSynonym "catfish, flathead"@en ,
                                         "pylodictis olivaris"@en ;
                     rdfs:label "flathead catfish species"@en .
@@ -3358,8 +3247,8 @@ obo:NCBITaxon_126735 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "muskellunge"@en ;
-                     oboInOwl:hasExactSynonym "muskellunge" ,
-                                              "muskellunge"@en ;
+                     oboInOwl:hasExactSynonym "muskellunge"@en ,
+                                              "muskellunge" ;
                      rdfs:label "Esox masquinongy" ;
                      rdfs:seeAlso "https://en.wikipedia.org/wiki/Muskellunge" .
 
@@ -3378,8 +3267,8 @@ obo:NCBITaxon_13106 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "bluegill"@en ;
-                    oboInOwl:hasExactSynonym "bluegill" ,
-                                             "bluegill"@en ,
+                    oboInOwl:hasExactSynonym "bluegill"@en ,
+                                             "bluegill" ,
                                              "bluegill sunfish" ;
                     rdfs:label "Lepomis macrochirus" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/Bluegill" .
@@ -3463,8 +3352,8 @@ obo:NCBITaxon_147949 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "bass"@en ;
-                     oboInOwl:hasExactSynonym "smallmouth bass" ,
-                                              "smallmouth bass"@en ,
+                     oboInOwl:hasExactSynonym "smallmouth bass"@en ,
+                                              "smallmouth bass" ,
                                               "smallmouth blackbass" ;
                      oboInOwl:hasNarrowSynonym "Micropterus dolomieui Lacepède, 1802" ,
                                                "Micropterus dolomieui Lacépède, 1801" ;
@@ -3536,6 +3425,15 @@ obo:NCBITaxon_1545897 rdf:type owl:Class ;
                                       obo:ncbitaxon.owl ;
                       rdfs:label "Centrarchoidei" .
 
+obo:NCBITaxon_154811 rdf:type owl:Class ;
+                     rdfs:subClassOf obo:NCBITaxon_154810 ;
+                     obo:IAO_0000412 obo:ncbitaxon.owl ;
+                     oboInOwl:hasBroadSynonym "sucker"@en ;
+                     oboInOwl:hasExactSynonym "river carpsucker"@en ,
+                                        "river carpsucker" ;
+                     rdfs:label "Carpiodes carpio" ;
+                     rdfs:seeAlso "https://en.wikipedia.org/wiki/River_carpsucker" .
+
 
 ###  http://purl.obolibrary.org/obo/NCBITaxon_1549675
 obo:NCBITaxon_1549675 rdf:type owl:Class ;
@@ -3560,8 +3458,8 @@ obo:NCBITaxon_184451 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "pickerel"@en ;
-                     oboInOwl:hasExactSynonym "chain pickerel" ,
-                                              "chain pickerel"@en ;
+                     oboInOwl:hasExactSynonym "chain pickerel"@en ,
+                                              "chain pickerel" ;
                      rdfs:label "Esox niger" ;
                      rdfs:seeAlso "https://en.wikipedia.org/wiki/Chain_pickerel" .
 
@@ -3612,8 +3510,8 @@ obo:NCBITaxon_225060 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "bass"@en ;
-                     oboInOwl:hasExactSynonym "spotted bass" ,
-                                              "spotted bass"@en ,
+                     oboInOwl:hasExactSynonym "spotted bass"@en ,
+                                              "spotted bass" ,
                                               "spotted blackbass" ;
                      rdfs:label "Micropterus punctulatus" ;
                      rdfs:seeAlso "https://en.wikipedia.org/wiki/Spotted_bass" .
@@ -3633,8 +3531,8 @@ obo:NCBITaxon_225389 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "freshwater drum"@en ;
-                     oboInOwl:hasExactSynonym "freshwater drum" ,
-                                              "freshwater drum"@en ;
+                     oboInOwl:hasExactSynonym "freshwater drum"@en ,
+                                              "freshwater drum" ;
                      rdfs:label "Aplodinotus grunniens" ;
                      rdfs:seeAlso "https://en.wikipedia.org/wiki/Freshwater_drum" .
 
@@ -3672,8 +3570,8 @@ obo:NCBITaxon_27706 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "bass"@en ;
-                    oboInOwl:hasExactSynonym "largemouth bass" ,
-                                             "largemouth bass"@en ,
+                    oboInOwl:hasExactSynonym "largemouth bass"@en ,
+                                             "largemouth bass" ,
                                              "largemouth blackbass" ;
                     oboInOwl:hasNarrowSynonym "Micropterus salmoides (Lacepède, 1802)" ,
                                               "Micropterus salmoides (Lacépède, 1801)" ;
@@ -3720,8 +3618,8 @@ obo:NCBITaxon_283036 rdf:type owl:Class ;
                      obo:IAO_0000412 obo:foodon.owl ,
                                      obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "walleye"@en ;
-                     oboInOwl:hasExactSynonym "walleye" ,
-                                              "walleye"@en ;
+                     oboInOwl:hasExactSynonym "walleye"@en ,
+                                              "walleye" ;
                      oboInOwl:hasNarrowSynonym "Sander vitreus (Mitchill, 1818)" ,
                                                "Stizostedion vitreum vitreum (Mitchill, 1818)" ;
                      rdfs:label "Sander vitreus" ;
@@ -3921,8 +3819,8 @@ obo:NCBITaxon_34816 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "bass"@en ;
-                    oboInOwl:hasExactSynonym "striped bass" ,
-                                             "striped bass"@en ,
+                    oboInOwl:hasExactSynonym "striped bass"@en ,
+                                             "striped bass" ,
                                              "striped sea-bass" ;
                     rdfs:label "Morone saxatilis" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/Striped_bass" .
@@ -4025,8 +3923,8 @@ obo:NCBITaxon_46259 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "bass"@en ;
-                    oboInOwl:hasExactSynonym "white bass" ,
-                                             "white bass"@en ;
+                    oboInOwl:hasExactSynonym "white bass"@en ,
+                                             "white bass" ;
                     rdfs:label "Morone chrysops" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/White_bass" .
 
@@ -4037,8 +3935,8 @@ obo:NCBITaxon_46260 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "white perch"@en ;
-                    oboInOwl:hasExactSynonym "white perch" ,
-                                             "white perch"@en ;
+                    oboInOwl:hasExactSynonym "white perch"@en ,
+                                             "white perch" ;
                     rdfs:label "Morone americana" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/White_perch" .
 
@@ -4151,8 +4049,8 @@ obo:NCBITaxon_6550 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "mussel"@en ;
-                   oboInOwl:hasExactSynonym "blue mussel" ,
-                                            "blue mussel"@en ,
+                   oboInOwl:hasExactSynonym "blue mussel"@en ,
+                                            "blue mussel" ,
                                             "edible mussel" ;
                    rdfs:label "Mytilus edulis" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Blue_mussel" .
@@ -4180,8 +4078,8 @@ obo:NCBITaxon_6604 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "softshell clam"@en ;
-                   oboInOwl:hasExactSynonym "softshell" ,
-                                            "softshell clam"@en ;
+                   oboInOwl:hasExactSynonym "softshell clam"@en ,
+                                            "softshell" ;
                    rdfs:label "Mya arenaria" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Soft-shell_clam" .
 
@@ -4192,8 +4090,8 @@ obo:NCBITaxon_66912 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "bullhead"@en ;
-                    oboInOwl:hasExactSynonym "yellow bullhead" ,
-                                             "yellow bullhead"@en ;
+                    oboInOwl:hasExactSynonym "yellow bullhead"@en ,
+                                             "yellow bullhead" ;
                     rdfs:label "Ameiurus natalis" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/Yellow_bullhead" .
 
@@ -4204,8 +4102,8 @@ obo:NCBITaxon_66913 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "catfish"@en ;
-                    oboInOwl:hasExactSynonym "blue catfish" ,
-                                             "blue catfish"@en ;
+                    oboInOwl:hasExactSynonym "blue catfish"@en ,
+                                             "blue catfish" ;
                     rdfs:label "Ictalurus furcatus" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/Blue_catfish" .
 
@@ -4224,8 +4122,8 @@ obo:NCBITaxon_75288 rdf:type owl:Class ;
                     obo:IAO_0000412 obo:foodon.owl ,
                                     obo:ncbitaxon.owl ;
                     oboInOwl:hasBroadSynonym "catfish"@en ;
-                    oboInOwl:hasExactSynonym "flathead catfish" ,
-                                             "flathead catfish"@en ;
+                    oboInOwl:hasExactSynonym "flathead catfish"@en ,
+                                             "flathead catfish" ;
                     rdfs:label "Pylodictis olivaris" ;
                     rdfs:seeAlso "https://en.wikipedia.org/wiki/Flathead_catfish" .
 
@@ -4311,8 +4209,8 @@ obo:NCBITaxon_7971 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "sucker"@en ;
-                   oboInOwl:hasExactSynonym "white sucker" ,
-                                            "white sucker"@en ;
+                   oboInOwl:hasExactSynonym "white sucker"@en ,
+                                            "white sucker" ;
                    oboInOwl:hasNarrowSynonym "Catostomus commersoni (Lacepède 1803)" ;
                    rdfs:label "Catostomus commersonii" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/White_sucker" .
@@ -4351,8 +4249,8 @@ obo:NCBITaxon_7998 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "catfish"@en ;
-                   oboInOwl:hasExactSynonym "channel catfish" ,
-                                            "channel catfish"@en ;
+                   oboInOwl:hasExactSynonym "channel catfish"@en ,
+                                            "channel catfish" ;
                    rdfs:label "Ictalurus punctatus" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Channel_catfish" .
 
@@ -4398,8 +4296,8 @@ obo:NCBITaxon_8010 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "pike"@en ;
-                   oboInOwl:hasExactSynonym "northern pike" ,
-                                            "northern pike"@en ;
+                   oboInOwl:hasExactSynonym "northern pike"@en ,
+                                            "northern pike" ;
                    rdfs:label "Esox lucius" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Northern_pike" .
 
@@ -4411,8 +4309,8 @@ obo:NCBITaxon_8015 rdf:type owl:Class ;
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasExactSynonym "salmon"@en ,
                                             "salmonids" ;
-                   rdfs:label "Salmonidae" ,
-                              "Salmonidae"@en .
+                   rdfs:label "Salmonidae"@en ,
+                              "Salmonidae" .
 
 
 ###  http://purl.obolibrary.org/obo/NCBITaxon_8016
@@ -4430,8 +4328,8 @@ obo:NCBITaxon_8022 rdf:type owl:Class ;
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "rainbow trout"@en ,
                                             "steelhead"@en ;
-                   oboInOwl:hasExactSynonym "rainbow trout" ,
-                                            "rainbow trout"@en ;
+                   oboInOwl:hasExactSynonym "rainbow trout"@en ,
+                                            "rainbow trout" ;
                    rdfs:label "Oncorhynchus mykiss" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Rainbow_trout" .
 
@@ -4451,8 +4349,8 @@ obo:NCBITaxon_8030 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "atlantic salmon"@en ;
-                   oboInOwl:hasExactSynonym "Atlantic salmon" ,
-                                            "atlantic salmon"@en ;
+                   oboInOwl:hasExactSynonym "atlantic salmon"@en ,
+                                            "Atlantic salmon" ;
                    rdfs:label "Salmo salar" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Atlantic_salmon" .
 
@@ -4483,8 +4381,8 @@ obo:NCBITaxon_8038 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "trout"@en ;
-                   oboInOwl:hasExactSynonym "brook trout" ,
-                                            "brook trout"@en ;
+                   oboInOwl:hasExactSynonym "brook trout"@en ,
+                                            "brook trout" ;
                    rdfs:label "Salvelinus fontinalis" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Brook_trout" .
 
@@ -4531,8 +4429,8 @@ obo:NCBITaxon_8167 rdf:type owl:Class ;
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "lake perch"@en ,
                                             "yellow"@en ;
-                   oboInOwl:hasExactSynonym "yellow perch" ,
-                                            "yellow perch"@en ;
+                   oboInOwl:hasExactSynonym "yellow perch"@en ,
+                                            "yellow perch" ;
                    oboInOwl:hasNarrowSynonym "Perca flavescens (Mitchill, 1814)" ;
                    rdfs:label "Perca flavescens" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Yellow_perch" .
@@ -4562,8 +4460,8 @@ obo:NCBITaxon_8182 rdf:type owl:Class ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
                    oboInOwl:hasBroadSynonym "crappie"@en ;
-                   oboInOwl:hasExactSynonym "black crappie" ,
-                                            "black crappie"@en ;
+                   oboInOwl:hasExactSynonym "black crappie"@en ,
+                                            "black crappie" ;
                    rdfs:label "Pomoxis nigromaculatus" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Black_crappie" .
 
@@ -4617,11 +4515,11 @@ obo:NCBITaxon_9031 rdf:type owl:Class ;
                    rdfs:subClassOf obo:NCBITaxon_9072 ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
-                   oboInOwl:hasExactSynonym "Gallus domesticus" ,
+                   oboInOwl:hasExactSynonym "gallus gallus domesticus"@en ,
+                                            "Gallus domesticus" ,
                                             "bantam" ,
                                             "chicken" ,
-                                            "chickens" ,
-                                            "gallus gallus domesticus"@en ;
+                                            "chickens" ;
                    rdfs:label "Gallus gallus" .
 
 
@@ -4692,8 +4590,8 @@ obo:NCBITaxon_9825 rdf:type owl:Class ;
                    rdfs:subClassOf obo:NCBITaxon_9823 ;
                    obo:IAO_0000412 obo:foodon.owl ,
                                    obo:ncbitaxon.owl ;
-                   oboInOwl:hasExactSynonym "domestic pig" ,
-                                            "domestic pig"@en ;
+                   oboInOwl:hasExactSynonym "domestic pig"@en ,
+                                            "domestic pig" ;
                    rdfs:label "Sus scrofa domesticus" ;
                    rdfs:seeAlso "https://en.wikipedia.org/wiki/Domestic_pig" .
 
@@ -4843,8 +4741,8 @@ obo:PATO_0001018 rdf:type owl:Class ;
                  obo:IAO_0000412 obo:cdno.owl ,
                                  obo:foodon.owl ,
                                  obo:pato.owl ;
-                 rdfs:label "physical quality" ,
-                            "physical quality"@en .
+                 rdfs:label "physical quality"@en ,
+                            "physical quality" .
 
 
 ###  http://purl.obolibrary.org/obo/PATO_0001241
@@ -4918,22 +4816,6 @@ obo:PO_0009009 rdf:type owl:Class ;
                oboInOwl:hasRelatedSynonym "germ (related)" ;
                rdfs:comment "A plant embryo is generally formed after the first division of a plant zygote (PO:0000423), but in the case of a nucellar (adventitious) plant embryo (PO:0004537), somatic plant embryo (PO:0025302), microspore-derived cultured plant embryo (PO:0025305), and other embryos that arise through apogamy, it begins after the division of a single cell that is not a zygote. The end of the embryo stage varies among taxa; the beginning of a seed germination stage (PO:0007057) in seed plants, formation of the first vascular leaf (PO:0009025) in pteridophytes, the beginning of development of a sporangium (PO:0025094) in bryophytes, or the beginning of the formation of a plant organ (PO:0009008) such as a root (PO:0009005), shoot axis (PO:0025029), or vascular leaf (PO:0009025) in a cultured plant embryo (PO:0000010)." ;
                rdfs:label "plant embryo" .
-
-
-###  http://purl.obolibrary.org/obo/PO_0025131
-obo:PO_0025131 rdf:type owl:Class ;
-               rdfs:subClassOf obo:BFO_0000040 ,
-                               [ rdf:type owl:Restriction ;
-                                 owl:onProperty obo:RO_0002160 ;
-                                 owl:someValuesFrom obo:NCBITaxon_33090
-                               ] ;
-               obo:IAO_0000115 "An anatomical entity that is or was part of a plant." ;
-               obo:IAO_0000412 obo:foodon.owl ,
-                               obo:po.owl ;
-               oboInOwl:hasExactSynonym "entidad anat&#243mica vegetal (Spanish, exact)" ,
-                                        "植物 解剖学（形態）的実体 (Japanese, exact)" ;
-               rdfs:comment "Includes both material entities such as plant structures and immaterial entities such as plant anatomical spaces. CARO:0000000 'anatomical entity' is defined as: A part of a cellular organism that is either an immaterial entity or a material entity with granularity aboove the level of a protein complex.  Or, a substance produced by a cellular organism with granularity above the level of a protein complex.  Refers to BFO:0000004 'independent continuant'." ;
-               rdfs:label "plant anatomical entity" .
 
 
 ###  http://purl.obolibrary.org/obo/UBERON_0000178
@@ -5030,23 +4912,23 @@ obo:UBERON_0006539 rdf:type owl:Class ;
 #################################################################
 
 obo:foodon.owl terms:contributor <https://orcid.org/0000-0002-3410-4655> ,
-                                  <https://orcid.org/0000-0002-8844-9165> ,
-                                  "Adrien Barton" ,
-                                  "Anoosha Sehar" ,
-                                  "Diane Alexander" ,
-                                  "Emma Griffiths" ,
-                                  "Fumiaki Toyoshima" ,
-                                  "Gurinder Gosal" ,
-                                  "Hande Küçük McGinty" ,
-                                  "Lauren Chen" ,
-                                  "Magalie Weber" ,
-                                  "Rhiannon Cameron" ;
-                terms:date "2025-05-21"^^xsd:date ;
-                terms:description "FoodOn is a consortium-driven project to build a comprehensive and easily accessible global farm-to-fork ontology about food, that accurately and consistently describes foods commonly known in cultures from around the world. See https://foodon.org for more details."@en ;
-                terms:license <https://creativecommons.org/licenses/by/4.0/> ;
-                terms:title "FoodOn Food Ontology"@en ;
-                oboInOwl:default-namespace "FOODON" ;
-                owl:versionInfo "2025-12-30" .
+                                 <https://orcid.org/0000-0002-8844-9165> ,
+                                 "Adrien Barton" ,
+                                 "Anoosha Sehar" ,
+                                 "Diane Alexander" ,
+                                 "Emma Griffiths" ,
+                                 "Fumiaki Toyoshima" ,
+                                 "Gurinder Gosal" ,
+                                 "Hande Küçük McGinty" ,
+                                 "Lauren Chen" ,
+                                 "Magalie Weber" ,
+                                 "Rhiannon Cameron" ;
+               terms:date "2025-05-21"^^xsd:date ;
+               terms:description "FoodOn is a consortium-driven project to build a comprehensive and easily accessible global farm-to-fork ontology about food, that accurately and consistently describes foods commonly known in cultures from around the world. See https://foodon.org for more details."@en ;
+               terms:license <https://creativecommons.org/licenses/by/4.0/> ;
+               terms:title "FoodOn Food Ontology"@en ;
+               oboInOwl:default-namespace "FOODON" ;
+               owl:versionInfo "2025-12-30" .
 
 
 ###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
