@@ -1,14 +1,16 @@
+@prefix : <workspace:///v1/contaminoso_core.ttl#> .
 @prefix coso: <http://w3id.org/coso/v1/contaminoso#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix geo: <http://www.opengis.net/ont/geosparql#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix qudt: <http://qudt.org/schema/qudt/> .
-@prefix sosa: <http://www.w3.org/ns/sosa/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix vann: <http://purl.org/vocab/vann/> .
+
 @base <http://w3id.org/coso/contaminoso#> .
 
 <http://w3id.org/coso/v1/contaminoso> rdf:type owl:Ontology ;
@@ -531,3 +533,8 @@ coso:SummedContaminantVolumeQuantityKind rdf:type owl:NamedIndividual ,
                                               coso:ContaminantVolumeQuantityKind ;
                                         rdfs:label "Summed Contaminant Volume Quantity" ;
                                         rdfs:isDefinedBy <http://w3id.org/coso/v1/contaminoso> .
+
+coso:AggregateContaminantMassQuantityKind rdf:type owl:NamedIndividual, coso:ContaminantMassQuantityKind;
+                                        rdfs:label "Aggregate Contaminant Mass over time Quantity";
+                                        rdfs:isDefinedBy <http://w3id.org/coso/v1/contaminoso> .
+

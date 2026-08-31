@@ -8,7 +8,7 @@ select * where {
     ?testPoint a coso:SamplePoint;
         coso:pointFromFeature ?feature;
         ^coso:observedAtSamplePoint ?observation.
-    ?observation coso:ofSubstance ?substance;
+    ?observation coso:ofDSSToxSubstance ?substance;
         coso:hasResult/coso:measurementValue ?concentration;
     	coso:hasResult/coso:measurementUnit ?unit.
     

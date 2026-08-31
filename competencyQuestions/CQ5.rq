@@ -13,7 +13,7 @@ select ?substance ?unit (AVG(?value) as ?AvgConcentration) (COUNT(?observation) 
     	coso:analyzedSample ?sample;						# with related samples
     	coso:observedAtPoint ?samplepoint;					# and locations
     	coso:hasResult ?measurement;						# and results
-    	coso:ofSubstance ?substance.						# and substance
+    	coso:ofDatasetSubstance ?substance.						# and substance
     ?sample coso:sampleOfMaterialType ?materialType;		# Where the related sample has a material type
     		a coso:AnimalTissueSample.   						# of animal tissue
     ?materialType a obo:FOODON_03411222. 				# and some Fish species

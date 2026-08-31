@@ -3,6 +3,7 @@
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix terms: <http://purl.org/dc/terms/> .
@@ -405,6 +406,7 @@ obo:FOODON_00001041 rdf:type owl:Class ;
                     terms:date "2025-02-01T09:59:11Z"^^xsd:dateTime ;
                     rdfs:label "cow food product"@en .
 
+
 ###  http://purl.obolibrary.org/obo/FOODON_00001057
 obo:FOODON_00001057 rdf:type owl:Class ;
                     owl:equivalentClass [ owl:intersectionOf ( obo:FOODON_00001261
@@ -423,12 +425,6 @@ obo:FOODON_00001057 rdf:type owl:Class ;
                     obo:IAO_0000115 "A food product derived from plant fruit."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     rdfs:label "plant fruit food product"@en .
-
-
-###  http://purl.obolibrary.org/obo/FOODON_00001175
-obo:FOODON_00001175 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_00001015 ;
-                    rdfs:label "plant stem food product"@en .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_00001092
@@ -516,6 +512,12 @@ obo:FOODON_00001173 rdf:type owl:Class ;
                     rdfs:subClassOf obo:FOODON_03460177 ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     rdfs:label "plant seed food product"@en .
+
+
+###  http://purl.obolibrary.org/obo/FOODON_00001175
+obo:FOODON_00001175 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_00001015 ;
+                    rdfs:label "plant stem food product"@en .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_00001242
@@ -797,6 +799,7 @@ obo:FOODON_00002616 rdf:type owl:Class ;
                     rdfs:comment "An avian animal which is dead or alive and has a relatively intact body."@en ;
                     rdfs:label "avian animal"@en .
 
+
 ###  http://purl.obolibrary.org/obo/FOODON_00002679
 obo:FOODON_00002679 rdf:type owl:Class ;
                     rdfs:subClassOf obo:FOODON_03308311 ;
@@ -805,6 +808,7 @@ obo:FOODON_00002679 rdf:type owl:Class ;
                     terms:date "2019-06-27T07:06:43Z"^^xsd:dateTime ;
                     schema:image "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Pangasius_meat.jpg/320px-Pangasius_meat.jpg"^^xsd:anyURI ;
                     rdfs:label "fish fillet"@en .
+
 
 ###  http://purl.obolibrary.org/obo/FOODON_00003004
 obo:FOODON_00003004 rdf:type owl:Class ;
@@ -1099,14 +1103,8 @@ obo:FOODON_02010012 rdf:type owl:Class ;
 
 ###  http://purl.obolibrary.org/obo/FOODON_02010014
 obo:FOODON_02010014 rdf:type owl:Class ;
-                    owl:equivalentClass [ owl:intersectionOf ( obo:FOODON_02010001
-                                                               obo:UBERON_0000178
-                                                             ) ;
-                                          rdf:type owl:Class
-                                        ] ;
                     rdfs:subClassOf obo:FOODON_02010001 ,
-                                    obo:FOODON_03302001 ,
-                                    obo:UBERON_0000178 ;
+                                    obo:FOODON_03302001 ;
                     obo:IAO_0000115 "Blood from an animal."@en ;
                     obo:IAO_0000412 obo:foodon.owl ;
                     terms:date "2023-08-01T21:25:29Z"^^xsd:dateTime ;
@@ -1787,13 +1785,15 @@ obo:FOODON_03000165 rdf:type owl:Class ;
                     terms:date "2025-11-07T00:57:03Z"^^xsd:dateTime ;
                     rdfs:label "fish material"@en .
 
-###  http://purl.obolibrary.org/obo/FOODON_03308311
-obo:FOODON_03308311 rdf:type owl:Class ;
-                    rdfs:subClassOf obo:FOODON_03301077 ;
+
+###  http://purl.obolibrary.org/obo/FOODON_03301077
+obo:FOODON_03301077 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_00001248 ;
+                    obo:IAO_0000412 obo:foodon.owl ;
                     rdfs:comment """SIREN DB annotation:
-* sliced FOODON:03430137
-* skeletal meat part FOODON:03420175"""@en ;
-                    rdfs:label "fish (portion cut)"@en .
+* part of animal FOODON:03420164"""@en ;
+                    rdfs:label "fish (whole or pieces)"@en .
+
 
 ###  http://purl.obolibrary.org/obo/FOODON_03301750
 obo:FOODON_03301750 rdf:type owl:Class ;
@@ -1808,15 +1808,6 @@ obo:FOODON_03301750 rdf:type owl:Class ;
 * non-food animal as food consumer FOODON:03510013
 * food animal as consumer FOODON:03510015"""@en ;
                     rdfs:label "forage (animal feed)"@en .
-
-### http://purl.obolibrary.org/obo/FOODON_03301077
-
-obo:FOODON_03301077 rdf:type owl:Class;
-        rdfs:label "fish (whole or pieces)"@en;
-        rdfs:subClassOf obo:FOODON_00001248;
-        rdfs:comment """SIREN DB annotation:
-* part of animal FOODON:03420164"""@en;
-        obo:IAO_0000412 obo:foodon.owl .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_03301761
@@ -1860,6 +1851,15 @@ obo:FOODON_03303380 rdf:type owl:Class ;
 * not heat-treated FOODON:03440003
 * part of plant FOODON:03420174"""@en ;
                     rdfs:label "spice food product"@en .
+
+
+###  http://purl.obolibrary.org/obo/FOODON_03308311
+obo:FOODON_03308311 rdf:type owl:Class ;
+                    rdfs:subClassOf obo:FOODON_03301077 ;
+                    rdfs:comment """SIREN DB annotation:
+* sliced FOODON:03430137
+* skeletal meat part FOODON:03420175"""@en ;
+                    rdfs:label "fish (portion cut)"@en .
 
 
 ###  http://purl.obolibrary.org/obo/FOODON_03309997
@@ -2023,6 +2023,7 @@ obo:FOODON_03411136 rdf:type owl:Class ;
                                               "pig"@en ,
                                               "Sus scrofa Linnaeus, 1758" ;
                     rdfs:label "swine"@en .
+
 
 ###  http://purl.obolibrary.org/obo/FOODON_03411140
 obo:FOODON_03411140 rdf:type owl:Class ;
@@ -3425,12 +3426,21 @@ obo:NCBITaxon_1545897 rdf:type owl:Class ;
                                       obo:ncbitaxon.owl ;
                       rdfs:label "Centrarchoidei" .
 
+
+###  http://purl.obolibrary.org/obo/NCBITaxon_154810
+obo:NCBITaxon_154810 rdf:type owl:Class ;
+                     rdfs:subClassOf obo:NCBITaxon_7968 ;
+                     obo:IAO_0000412 obo:ncbitaxon.owl ;
+                     rdfs:label "Carpiodes" .
+
+
+###  http://purl.obolibrary.org/obo/NCBITaxon_154811
 obo:NCBITaxon_154811 rdf:type owl:Class ;
                      rdfs:subClassOf obo:NCBITaxon_154810 ;
                      obo:IAO_0000412 obo:ncbitaxon.owl ;
                      oboInOwl:hasBroadSynonym "sucker"@en ;
                      oboInOwl:hasExactSynonym "river carpsucker"@en ,
-                                        "river carpsucker" ;
+                                              "river carpsucker" ;
                      rdfs:label "Carpiodes carpio" ;
                      rdfs:seeAlso "https://en.wikipedia.org/wiki/River_carpsucker" .
 
@@ -4818,38 +4828,6 @@ obo:PO_0009009 rdf:type owl:Class ;
                rdfs:label "plant embryo" .
 
 
-###  http://purl.obolibrary.org/obo/UBERON_0000178
-obo:UBERON_0000178 rdf:type owl:Class ;
-                   rdfs:subClassOf obo:UBERON_0000179 ;
-                   obo:IAO_0000115 "A fluid that is composed of blood plasma and erythrocytes." ;
-                   obo:IAO_0000412 <http://langual.org> ,
-                                   obo:foodon.owl ,
-                                   obo:uberon.owl ;
-                   terms:date "2019-06-12T07:33:21Z"^^xsd:dateTime ;
-                   rdfs:comment """SIREN DB annotation:
-* liquid FOODON:03430130
-* blood UBERON:0000178"""@en ;
-                   rdfs:label "blood" .
-
-
-###  http://purl.obolibrary.org/obo/UBERON_0000179
-obo:UBERON_0000179 rdf:type owl:Class ;
-                   rdfs:subClassOf obo:UBERON_0006314 ;
-                   obo:IAO_0000115 "Circulating fluid that is part of the hemolymphoid system. Blood, lymph, interstitial fluid or its analogs." ;
-                   obo:IAO_0000412 obo:foodon.owl ,
-                                   obo:uberon.owl ;
-                   rdfs:label "haemolymphatic fluid" .
-
-
-###  http://purl.obolibrary.org/obo/UBERON_0000456
-obo:UBERON_0000456 rdf:type owl:Class ;
-                   rdfs:subClassOf obo:UBERON_0000463 ;
-                   obo:IAO_0000115 "A portion of organism substance that is produced by exocrine glands." ;
-                   obo:IAO_0000412 obo:foodon.owl ,
-                                   obo:uberon.owl ;
-                   rdfs:label "secretion of exocrine gland" .
-
-
 ###  http://purl.obolibrary.org/obo/UBERON_0000463
 obo:UBERON_0000463 rdf:type owl:Class ;
                    rdfs:subClassOf obo:UBERON_0000465 ,
@@ -4876,9 +4854,7 @@ obo:UBERON_0000465 rdf:type owl:Class ;
 ###  http://purl.obolibrary.org/obo/UBERON_0001913
 obo:UBERON_0001913 rdf:type owl:Class ;
                    rdfs:subClassOf obo:FOODON_02010001 ,
-                                   obo:FOODON_03315150 ,
-                                   obo:UBERON_0006314 ,
-                                   obo:UBERON_0006539 ;
+                                   obo:FOODON_03315150 ;
                    obo:IAO_0000115 "An emulsion of fat globules within a fluid that is secreted by the mammary gland during lactation." ;
                    obo:IAO_0000412 <http://langual.org> ,
                                    obo:foodon.owl ,
@@ -4886,25 +4862,6 @@ obo:UBERON_0001913 rdf:type owl:Class ;
                    oboInOwl:hasExactSynonym "mammal milk"@en ;
                    rdfs:comment "LanguaL curation note: See scope note for *MILK OR MILK COMPONENT*. for lowfat milk use *FAT PARTIALLY REMOVED*; for skim milk, use *FAT FULLY REMOVED* (both found in D3. TREATMENT APPLIED)."@en ;
                    rdfs:label "milk" .
-
-
-###  http://purl.obolibrary.org/obo/UBERON_0006314
-obo:UBERON_0006314 rdf:type owl:Class ;
-                   rdfs:subClassOf obo:UBERON_0000463 ;
-                   obo:IAO_0000115 "Liquid components of living organisms. includes fluids that are excreted or secreted from the body as well as body water that normally is not." ;
-                   obo:IAO_0000412 obo:foodon.owl ,
-                                   obo:uberon.owl ;
-                   oboInOwl:hasBroadSynonym "fluid"@en ;
-                   rdfs:label "bodily fluid" .
-
-
-###  http://purl.obolibrary.org/obo/UBERON_0006539
-obo:UBERON_0006539 rdf:type owl:Class ;
-                   rdfs:subClassOf obo:UBERON_0000456 ;
-                   obo:IAO_0000115 "A substance that is secreted by a mammary gland. The substance may differ depending on phase, with colostrum produced during pregancy/early lactation, and milk produced afterwards." ;
-                   obo:IAO_0000412 obo:foodon.owl ,
-                                   obo:uberon.owl ;
-                   rdfs:label "mammary gland fluid/secretion" .
 
 
 #################################################################

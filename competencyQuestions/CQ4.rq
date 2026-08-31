@@ -5,7 +5,7 @@ PREFIX qudt: <http://qudt.org/schema/qudt/>
 PREFIX unit: <http://qudt.org/vocab/unit/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
-PREFIX me_egad_data: <http://w3id.org/sawgraph/v1/me-egad-data#>
+PREFIX me_egad: <http://w3id.org/sawgraph/v1/me-egad#>
 
 SELECT ?feature ?featureType ?sample ?date (SUM(?value) as ?cumulativeConcentration) ?unit WHERE {
     ?sample a coso:WaterSample; 									# All Water Samples
@@ -18,7 +18,7 @@ SELECT ?feature ?featureType ?sample ?date (SUM(?value) as ?cumulativeConcentrat
     			coso:hasResult ?measurement.
     ?measurement qudt:quantityValue/qudt:numericValue ?value; 		# only numeric results (ignore non-detects)
     		coso:measurementUnit ?unit .					 		# in the same unit
-    VALUES ?surfaceWater {me_egad_data:DefEGADSurfaceWaterSample}.  # of surface water
+    VALUES ?surfaceWater {me_egad:DefEGADSurfaceWaterSample}.  # of surface water
     VALUES ?unit {unit:NanoGM-PER-L}.								# measured in ng/l
 
 } GROUP BY ?sample ?feature ?featureType ?date ?unit

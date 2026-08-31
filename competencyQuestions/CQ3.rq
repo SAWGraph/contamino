@@ -5,7 +5,7 @@ PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX qudt: <http://qudt.org/schema/qudt/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
-PREFIX me_egad_data: <http://w3id.org/sawgraph/v1/me-egad-data#>
+PREFIX me_egad: <http://w3id.org/sawgraph/v1/me-egad#>
 
 SELECT * WHERE {
     ?feature coso:ofFeatureType ?featureType;                                   # all features
@@ -15,8 +15,8 @@ SELECT * WHERE {
     			coso:hasResult ?measurement. 
    ?measurement coso:measurementValue ?value;                                   # with the measured value
     		coso:measurementUnit/qudt:symbol ?unit.                             # and unit
-    VALUES ?cas{'335671'}                                                       # where the substance is PFOA
-    VALUES ?featureType{ me_egad_data:featureType.PWSW}                         # and the feature is a private water supply well
-    FILTER( ?value < 20 || ?value = coso:non-detect)                            # and the value is below 20 or non-detect
+    VALUES ?cas{'335671' '335-67-1'}                                                       # where the substance is PFOA
+    VALUES ?featureType{ me_egad:featureType.PWSW}                         # and the feature is a private water supply well
+    FILTER( ?value < 20 || ?value = "non-detect" || ?value= "non-quantified")                            # and the value is below 20 or non-detect
 
 } ORDER BY ?value

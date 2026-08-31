@@ -6,9 +6,12 @@ PREFIX dsstox: <http://w3id.org/DSSTox/v1/>
 
 SELECT * WHERE {
     ?sample a coso:MaterialSample;  # all samples
-    		coso:sampleOfMaterialType/rdfs:label ?sampleType;  # with type labels
     		^coso:analyzedSample ?observation. 
     ?observation coso:ofSubstance ?substance. # that were tested for a specific substance
     VALUES ?substance{dsstox:DTXSID40892486 dsstox:DTXSID8031865 dsstox:DTXSID8031865} #where the substance is PFOA (or variant)
     #VALUES ?substance{me_egad_data:parameter.PFOA_A me_egad_data:parameter.PFOA me_egad_data:parameter.PFOA_A_L me_egad_data:parameter.PFOA_A_BR}  # where the substance is PFOA (by dataset reference)
+    {SELECT ?sample (GROUP_CONCAT(?sampleType; separator=";") as ?type)
+        WHERE {
+        ?sample coso:sampleOfMaterialType/rdfs:label ?sampleType.  # with type labels
+        } GROUP BY ?sample}
 } 

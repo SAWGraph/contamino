@@ -13,12 +13,12 @@ SELECT * WHERE {
     		a coso:SoilSample; # soil samples
     		coso:sampleOfMaterialType/rdfs:label ?sampleType;  # with type labels
     		^coso:analyzedSample ?observation. 
-    ?observation coso:ofSubstance ?dtxsid;   # that were tested for a specific substance
-    			coso:ofSubstance/rdfs:label ?substanceName;
+    ?observation coso:ofDSSToxSubstance ?dtxsid;   # that were tested for a specific substance
+    			coso:ofDSSToxSubstance/rdfs:label ?substanceName;
     			coso:hasResult ?measurement.
     ?measurement coso:measurementValue ?value;
     		coso:measurementUnit/qudt:symbol ?unit.
-    VALUES ?dtxsid{dsstox:DTXSID5030030} # # where the substance is PFBS
+    VALUES ?dtxsid{dsstox:DTXSID5030030 dsstox:DTXSID5030030} # # where the substance is PFBS
     #VALUES ?substanceName{"Perfluorobutanesulfonic acid"} # Can alternately search substance by name
 
 } ORDER BY ?value

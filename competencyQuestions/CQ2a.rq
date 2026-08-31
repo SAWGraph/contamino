@@ -14,6 +14,6 @@ SELECT * WHERE {
     			coso:hasResult ?measurement.
     ?measurement coso:measurementValue ?value;
     		coso:measurementUnit/qudt:symbol ?unit.
-    VALUES ?cas{'375735'}  # where the substance is PFBS
+    VALUES ?cas{'375735' '375-73-5'}  # where the substance is PFBS
 
 } ORDER BY ?value

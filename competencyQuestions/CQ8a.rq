@@ -1,4 +1,4 @@
-#  What locations have had multiple reported PFAS releases over time?
+#  What locations have had multiple reported PFAS releases over time (including 0 quantity)?
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
@@ -6,8 +6,6 @@ PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
 SELECT ?rf ?rfLabel (COUNT(?obs) as ?obsCount) 
 WHERE {
 	?rf a coso:ReleaseFeature.
-    ?obs coso:hasFeatureOfInterest ?rf;
-    	coso:hasResult/coso:measurementValue ?quantity.
-    FILTER(?quantity > 0)
+    ?obs coso:hasFeatureOfInterest ?rf.
 } group by ?rf ?rfLabel
 HAVING (?obsCount > 1)

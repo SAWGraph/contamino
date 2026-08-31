@@ -1,0 +1,24 @@
+
+# All water samples with their cumulative concentration converted to NG/L
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
+PREFIX me_egad: <http://w3id.org/sawgraph/v1/me-egad#>
+
+SELECT ?feature ?featureType ?sample ?date (SUM(?normalizedValue) as ?cumulativeConcentrationNGperL) (SUM(?value) as ?cumulativeConcentration) ?unit
+WHERE {
+    ?sample a coso:WaterSample; 									# All Water Samples
+    		coso:isSampleOf ?feature;				
+    		^coso:analyzedSample ?observation.
+    ?feature coso:ofFeatureType/rdfs:label ?featureType. 			# With feature info
+    ?observation coso:ofSubstance/rdfs:label ?substanceName; 		# tested for each substance
+    			coso:observedTime ?date;							# on what sample date
+    			coso:hasResult ?measurement.
+    ?measurement coso:measurementValue ?value; 		# only numeric results (ignore non-detects)
+    		coso:measurementUnit ?unit .					 		# in the same unit
+    ?unit qudt:conversionMultiplier ?normalizer
+    BIND ((?value * ?normalizer * 1000000000) as ?normalizedValue )
+
+} GROUP BY ?sample ?feature ?featureType ?date ?unit ?normalizer
+#HAVING(?cumulativeConcentrationNGperL > 20)								# Only those with a total concentration over 20 ng/l

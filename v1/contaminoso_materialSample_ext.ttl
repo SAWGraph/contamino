@@ -165,18 +165,25 @@ coso:AnimalMaterialSample owl:equivalentClass [ owl:unionOf (
             [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_00003004] # or some animal 
-            coso:AnimalBloodSample
-            coso:AnimalTissueSample
-            coso:AnimalOrganSample
-            coso:AnimalMilkSample) ].  
+            ) ].  
 
 coso:AnimalBloodSample owl:equivalentClass [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;
             owl:someValuesFrom obo:FOODON_02010015] .# some animal blood
 
-coso:AnimalTissueSample owl:equivalentClass [rdf:type owl:Restriction; 
+coso:AnimalTissueSample owl:equivalentClass [ owl:unionOf (
+          [rdf:type owl:Restriction; 
             owl:onProperty coso:sampleOfMaterialType;
-            owl:someValuesFrom [owl:unionOf(obo:FOODON_02010032 obo:FOODON_02010029 obo:FOODON_02010028 obo:FOODON_02010107)]] . #some animal muscle, skinless piece, piece with skin, or meat piece
+            owl:someValuesFrom obo:FOODON_02010032] #some animal muscle
+          [rdf:type owl:Restriction; 
+            owl:onProperty coso:sampleOfMaterialType;
+            owl:someValuesFrom obo:FOODON_02010029] #skinless piece
+          [rdf:type owl:Restriction; 
+            owl:onProperty coso:sampleOfMaterialType;
+            owl:someValuesFrom obo:FOODON_02010028] #piece with skin
+          [rdf:type owl:Restriction; 
+            owl:onProperty coso:sampleOfMaterialType; #meat piece
+            owl:someValuesFrom obo:FOODON_02010107])  ] . 
 
 coso:AnimalOrganSample owl:equivalentClass [rdf:type owl:Restriction;
             owl:onProperty coso:sampleOfMaterialType;

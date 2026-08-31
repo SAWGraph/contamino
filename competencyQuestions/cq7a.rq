@@ -1,0 +1,18 @@
+# What region(county subdivision) are the release features in?
+
+PREFIX kwg-ont: <http://stko-kwg.geog.ucsb.edu/lod/ontology/>
+PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcgeoid: <https://datacommons.org/browser/geoId/>
+
+SELECT * 
+WHERE{
+    ?releasePoint a coso:ReleaseFeature. 
+    SERVICE <repository:FIO> {
+        ?releasePoint kwg-ont:sfWithin ?region.}
+    SERVICE <repository:Spatial>{
+        ?region a kwg-ont:AdministrativeRegion_3;
+                rdfs:label ?regionName. 
+    }
+}

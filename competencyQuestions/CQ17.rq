@@ -1,0 +1,23 @@
+#Find the most specific standardized class (with label) for each material controlled vocabulary term aligned to FoodOn
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX obo:  <http://purl.obolibrary.org/obo/>
+PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
+
+SELECT DISTINCT ?s ?dataset_label ?specificClass ?specificClassLabel
+WHERE {
+  ?s a coso:SampleMaterialType ;
+     rdfs:label ?dataset_label ;
+     a ?specificClass .
+
+  ?specificClass rdfs:subClassOf obo:BFO_0000040 ;
+                 rdfs:label ?specificClassLabel .
+
+  # Reject C when this same sample also has a type D
+  # and D is a proper subclass of C.
+  FILTER NOT EXISTS {
+    ?s a ?moreSpecificClass .
+    ?moreSpecificClass rdfs:subClassOf ?specificClass .
+    FILTER (?moreSpecificClass != ?specificClass) #exclude self-subclass
+  }
+}

@@ -5,15 +5,15 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
-PREFIX me_egad_data: <http://w3id.org/sawgraph/v1/me-egad-data#>
-PREFIX us-wqp-data: <http://w3id.org/sawgraph/v1/us-wqp-data#>
+PREFIX me_egad: <http://w3id.org/sawgraph/v1/me-egad#>
+PREFIX us-wqp: <http://w3id.org/sawgraph/v1/us-wqp#>
 
 
 SELECT ?sampletype ?typeLabel (COUNT(?sample) as ?no_samples) WHERE {
 	?sp rdf:type coso:SamplePoint;
         coso:pointFromFeature ?feature.
     ?feature coso:ofFeatureType ?featureType.
-    VALUES ?featureType {me_egad_data:featureType.MRN us-wqp-data:featureType.Ocean}
+    VALUES ?featureType {me_egad:featureType.MRN us-wqp:featureType.Ocean}
     ?sample coso:fromSamplePoint ?sp ;
     	coso:sampleOfMaterialType ?sampletype .
     ?sampletype rdfs:label ?typeLabel. 

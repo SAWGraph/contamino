@@ -13,8 +13,8 @@ SELECT (max(?value) as ?max_value)  (min(?value) as ?min_value) WHERE {
     		a coso:SoilSample; # soil samples
     		coso:sampleOfMaterialType/rdfs:label ?sampleType;  # with type labels
     		^coso:analyzedSample ?observation. 
-    ?observation coso:ofSubstance ?dtxsid;   # that were tested for a specific substance
-    			coso:ofSubstance/rdfs:label ?substanceName;
+    ?observation coso:ofDSSToxSubstance ?dtxsid;   # that were tested for a specific substance
+    			coso:ofDSSToxSubstance/rdfs:label ?substanceName;
     			coso:hasResult ?measurement.
     ?measurement coso:measurementValue ?value;
     		coso:measurementUnit/qudt:symbol ?unit.

@@ -1,14 +1,14 @@
 # What was the detection limit of measurement X?
 PREFIX qudt: <http://qudt.org/schema/qudt/>
 PREFIX coso: <http://w3id.org/coso/v1/contaminoso#>
-PREFIX me_egad_data: <http://w3id.org/sawgraph/v1/me-egad-data#>
-PREFIX us_wqp_data: <http://w3id.org/sawgraph/v1/us-wqp-data#>
+PREFIX me_egad_data: <http://w3id.org/sawgraph/v2/me-egad-data#>
+PREFIX us_wqp_data: <http://w3id.org/sawgraph/v2/us-wqp-data#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT * 
 WHERE{
-    VALUES ?measurement{us_wqp_data:d.wqp.measurement.STORET-987908414} #me_egad_data:result.L204794007RE.AAWH.20201030.68259121
+    VALUES ?measurement{us_wqp_data:d.wqp.measurement.STORET-987908414} #me_egad_data:d.egad.result.143291.L204794007RE.AAWHAAWH-WG1431616.20201030.68259121
     ?measurement a coso:ContaminantMeasurement;
     			coso:hasResultQualifier ?dl.
     ?dl a coso:DetectionLimit;
