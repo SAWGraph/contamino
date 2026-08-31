@@ -24,6 +24,7 @@ class RestrictionInfo:
     value_uri: URIRef | None = None
     raw_value: str | None = None
 
+
 @dataclass
 class EquivalentExpression:
     source: str
@@ -44,6 +45,7 @@ class NodeInfo:
     incoming_instances: DefaultDict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
     restrictions: DefaultDict[str, list[RestrictionInfo]] = field(default_factory=lambda: defaultdict(list))
     equivalent_expressions: DefaultDict[str, list[EquivalentExpression]] = field(default_factory=lambda: defaultdict(list))
+
 
 def local_name(term: URIRef | BNode | Literal) -> str:
     if isinstance(term, Literal):
@@ -85,6 +87,8 @@ def namespace_class_for_uri(uri: URIRef) -> str:
 
 
 def source_namespace_prefix(source: str) -> str:
+    if source in {"merged", "merged_reasoned", "reasoned", "inferred"}:
+        return ""
     if source == "egad_alignment":
         return "EGAD"
     if source == "wqp_alignment":
@@ -144,6 +148,23 @@ def property_label(graph: Graph, predicate: URIRef | BNode | None) -> str:
     return local_name(predicate) if predicate is not None else "related to"
 
 
+CARDINALITY_PREDICATES = {
+    OWL.minCardinality: "min",
+    OWL.maxCardinality: "max",
+    OWL.cardinality: "exactly",
+    OWL.minQualifiedCardinality: "min qualified",
+    OWL.maxQualifiedCardinality: "max qualified",
+    OWL.qualifiedCardinality: "exactly qualified",
+}
+
+VALUE_PREDICATES = {
+    OWL.someValuesFrom: "some",
+    OWL.allValuesFrom: "only",
+    OWL.hasValue: "value",
+    OWL.onClass: "onClass",
+}
+
+
 def expression_label(
     structure_graph: Graph,
     label_graph: Graph,
@@ -199,6 +220,7 @@ def expression_label(
 
     return "[anonymous class]"
 
+
 def object_label(
     structure_graph: Graph,
     label_graph: Graph,
@@ -207,21 +229,61 @@ def object_label(
     return expression_label(structure_graph, label_graph, obj)
 
 
-CARDINALITY_PREDICATES = {
-    OWL.minCardinality: "min",
-    OWL.maxCardinality: "max",
-    OWL.cardinality: "exactly",
-    OWL.minQualifiedCardinality: "min qualified",
-    OWL.maxQualifiedCardinality: "max qualified",
-    OWL.qualifiedCardinality: "exactly qualified",
-}
+def manchester_expr(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode | Literal | None,
+) -> str:
+    if node is None:
+        return "?"
+    if isinstance(node, Literal):
+        return str(node)
+    if isinstance(node, URIRef):
+        return label_for(label_graph, node)
 
-VALUE_PREDICATES = {
-    OWL.someValuesFrom: "some",
-    OWL.allValuesFrom: "only",
-    OWL.hasValue: "value",
-    OWL.onClass: "onClass",
-}
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, union_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        return " or ".join(members)
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, intersection_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        return " and ".join(members)
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        prop = structure_graph.value(node, OWL.onProperty)
+        prop_text = property_label(label_graph, prop)
+
+        some_value = structure_graph.value(node, OWL.someValuesFrom)
+        if some_value is not None:
+            return f"{prop_text} some {manchester_expr(structure_graph, label_graph, some_value)}"
+
+        all_value = structure_graph.value(node, OWL.allValuesFrom)
+        if all_value is not None:
+            return f"{prop_text} only {manchester_expr(structure_graph, label_graph, all_value)}"
+
+        has_value = structure_graph.value(node, OWL.hasValue)
+        if has_value is not None:
+            return f"{prop_text} value {manchester_expr(structure_graph, label_graph, has_value)}"
+
+        for predicate, kind in CARDINALITY_PREDICATES.items():
+            value = structure_graph.value(node, predicate)
+            if value is not None:
+                on_class = structure_graph.value(node, OWL.onClass)
+                if on_class is not None:
+                    return f"{prop_text} {kind} {value} {manchester_expr(structure_graph, label_graph, on_class)}"
+                return f"{prop_text} {kind} {value}"
+
+    return "[anonymous class]"
 
 
 def parse_restrictions(
@@ -382,6 +444,40 @@ def collect_restriction_targets(
     return targets
 
 
+def collect_equivalent_expression(
+    structure_graph: Graph,
+    label_graph: Graph,
+    node: URIRef | BNode,
+    source: str,
+) -> EquivalentExpression | None:
+    union_list = structure_graph.value(node, OWL.unionOf)
+    if isinstance(union_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, union_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="or", members=members)
+
+    intersection_list = structure_graph.value(node, OWL.intersectionOf)
+    if isinstance(intersection_list, BNode):
+        members = [
+            manchester_expr(structure_graph, label_graph, item)
+            for item in Collection(structure_graph, intersection_list)
+        ]
+        members = [m for m in members if m and m != "?"]
+        if members:
+            return EquivalentExpression(source=source, operator="and", members=members)
+
+    if (node, RDF.type, OWL.Restriction) in structure_graph:
+        text = manchester_expr(structure_graph, label_graph, node)
+        if text and text != "[anonymous class]":
+            return EquivalentExpression(source=source, operator="", members=[text])
+
+    return None
+
+
 def node_dom_id(uri: URIRef) -> str:
     digest = hashlib.sha1(str(uri).encode("utf-8")).hexdigest()[:10]
     return f"node-{digest}"
@@ -428,6 +524,18 @@ def class_terms(graph: Graph) -> set[URIRef]:
             terms.add(subject)
 
     return terms
+
+
+def preferred_parent(nodes: dict[URIRef, NodeInfo], uri: URIRef, selected: set[URIRef]) -> URIRef | None:
+    parents = list(nodes[uri].parents & selected)
+    if not parents:
+        return None
+
+    coso_parents = [p for p in parents if namespace_prefix_for_uri(p) == "COSO"]
+    if coso_parents:
+        return sorted(coso_parents, key=lambda p: nodes[p].label.lower())[0]
+
+    return sorted(parents, key=lambda p: nodes[p].label.lower())[0]
 
 
 def add_restrictions_to_node(
@@ -497,8 +605,7 @@ def build_structure(graph: Graph, label_graph: Graph, source: str, nodes: dict[U
             for item in Collection(graph, expression):
                 if isinstance(item, URIRef):
                     ensure_node(nodes, graph, item, source)
-                    nodes[subject].parents.add(item)
-                    nodes[item].children.add(subject)
+                    nodes[subject].alignment_targets[source].add(item)
                 elif isinstance(item, BNode):
                     targets = collect_restriction_targets(graph, item)
                     nodes[subject].alignment_targets[source].update(targets)
@@ -546,121 +653,6 @@ def add_inferred_instances(graph: Graph, label_graph: Graph, nodes: dict[URIRef,
             ensure_node(nodes, label_graph, target, source)
             nodes[target].incoming_instances[source].add(subject_label)
 
-def collect_equivalent_expression(
-    structure_graph: Graph,
-    label_graph: Graph,
-    node: URIRef | BNode,
-    source: str,
-) -> EquivalentExpression | None:
-    union_list = structure_graph.value(node, OWL.unionOf)
-    if isinstance(union_list, BNode):
-        members = [manchester_expr(structure_graph, label_graph, item) for item in Collection(structure_graph, union_list)]
-        members = [m for m in members if m and m != "?"]
-        if members:
-            return EquivalentExpression(source=source, operator="or", members=members)
-
-    intersection_list = structure_graph.value(node, OWL.intersectionOf)
-    if isinstance(intersection_list, BNode):
-        members = [manchester_expr(structure_graph, label_graph, item) for item in Collection(structure_graph, intersection_list)]
-        members = [m for m in members if m and m != "?"]
-        if members:
-            return EquivalentExpression(source=source, operator="and", members=members)
-
-    if (node, RDF.type, OWL.Restriction) in structure_graph:
-        text = manchester_expr(structure_graph, label_graph, node)
-        return EquivalentExpression(source=source, operator="", members=[text])
-
-    return None
-
-def manchester_expr(
-    structure_graph: Graph,
-    label_graph: Graph,
-    node: URIRef | BNode | Literal | None,
-) -> str:
-    if node is None:
-        return "?"
-    if isinstance(node, Literal):
-        return str(node)
-    if isinstance(node, URIRef):
-        return label_for(label_graph, node)
-
-    union_list = structure_graph.value(node, OWL.unionOf)
-    if isinstance(union_list, BNode):
-        members = [
-            manchester_expr(structure_graph, label_graph, item)
-            for item in Collection(structure_graph, union_list)
-        ]
-        members = [m for m in members if m and m != "?"]
-        return " or ".join(members)
-
-    intersection_list = structure_graph.value(node, OWL.intersectionOf)
-    if isinstance(intersection_list, BNode):
-        members = [
-            manchester_expr(structure_graph, label_graph, item)
-            for item in Collection(structure_graph, intersection_list)
-        ]
-        members = [m for m in members if m and m != "?"]
-        return " and ".join(members)
-
-    if (node, RDF.type, OWL.Restriction) in structure_graph:
-        prop = structure_graph.value(node, OWL.onProperty)
-        prop_text = property_label(label_graph, prop)
-
-        some_value = structure_graph.value(node, OWL.someValuesFrom)
-        if some_value is not None:
-            return f"{prop_text} some {manchester_expr(structure_graph, label_graph, some_value)}"
-
-        all_value = structure_graph.value(node, OWL.allValuesFrom)
-        if all_value is not None:
-            return f"{prop_text} only {manchester_expr(structure_graph, label_graph, all_value)}"
-
-        has_value = structure_graph.value(node, OWL.hasValue)
-        if has_value is not None:
-            return f"{prop_text} value {manchester_expr(structure_graph, label_graph, has_value)}"
-
-        for predicate, kind in CARDINALITY_PREDICATES.items():
-            value = structure_graph.value(node, predicate)
-            if value is not None:
-                on_class = structure_graph.value(node, OWL.onClass)
-                if on_class is not None:
-                    return f"{prop_text} {kind} {value} {manchester_expr(structure_graph, label_graph, on_class)}"
-                return f"{prop_text} {kind} {value}"
-
-    return "[anonymous class]"
-
-
-def collect_equivalent_expression(
-    structure_graph: Graph,
-    label_graph: Graph,
-    node: URIRef | BNode,
-    source: str,
-) -> EquivalentExpression | None:
-    union_list = structure_graph.value(node, OWL.unionOf)
-    if isinstance(union_list, BNode):
-        members = [
-            manchester_expr(structure_graph, label_graph, item)
-            for item in Collection(structure_graph, union_list)
-        ]
-        members = [m for m in members if m and m != "?"]
-        if members:
-            return EquivalentExpression(source=source, operator="or", members=members)
-
-    intersection_list = structure_graph.value(node, OWL.intersectionOf)
-    if isinstance(intersection_list, BNode):
-        members = [
-            manchester_expr(structure_graph, label_graph, item)
-            for item in Collection(structure_graph, intersection_list)
-        ]
-        members = [m for m in members if m and m != "?"]
-        if members:
-            return EquivalentExpression(source=source, operator="and", members=members)
-
-    if (node, RDF.type, OWL.Restriction) in structure_graph:
-        text = manchester_expr(structure_graph, label_graph, node)
-        if text and text != "[anonymous class]":
-            return EquivalentExpression(source=source, operator="", members=[text])
-
-    return None
 
 def collect_alignment_targets(graph: Graph) -> dict[URIRef, set[URIRef]]:
     targets_by_subject: dict[URIRef, set[URIRef]] = {}
@@ -691,17 +683,35 @@ def collect_alignment_targets(graph: Graph) -> dict[URIRef, set[URIRef]]:
 
 
 def choose_roots(nodes: dict[URIRef, NodeInfo], selected: set[URIRef]) -> list[URIRef]:
-    roots: list[URIRef] = []
-    for candidate in (MATERIAL_ENTITY_IRI, COSO_MATERIAL_SAMPLE_IRI):
-        if candidate in selected:
-            roots.append(candidate)
-    if roots:
-        return roots
-    roots = [uri for uri in selected if not (nodes[uri].parents & selected)]
-    return sorted(roots, key=lambda uri: nodes[uri].label.lower())
+    preferred = [
+        candidate
+        for candidate in (MATERIAL_ENTITY_IRI, COSO_MATERIAL_SAMPLE_IRI)
+        if candidate in selected
+    ]
+
+    disconnected = [
+        uri for uri in selected
+        if not (nodes[uri].parents & selected)
+        and uri not in preferred
+        and (
+            nodes[uri].incoming_instances
+            or nodes[uri].equivalent_expressions
+            or nodes[uri].restrictions
+            or (nodes[uri].children & selected)
+        )
+    ]
+
+    return preferred + sorted(disconnected, key=lambda uri: nodes[uri].label.lower())
 
 
 def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_targets: set[URIRef]) -> str:
+    
+    def visible_children(uri: URIRef) -> list[URIRef]:
+        return sorted(nodes[uri].children & selected, key=lambda item: nodes[item].label.lower())
+
+    def is_leaf(uri: URIRef) -> bool:
+        return not visible_children(uri)
+
     def render_node(uri: URIRef, path: set[URIRef]) -> str:
         node = nodes[uri]
         next_path = set(path)
@@ -715,6 +725,8 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
             lines = []
             for source, restrictions in sorted(node.restrictions.items()):
                 source_prefix = source_namespace_prefix(source)
+                if not source_prefix:
+                    continue
                 items = []
                 seen = set()
                 for r in restrictions:
@@ -739,7 +751,7 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
                     f"<div class='alignment-lines'>{''.join(lines)}</div>"
                     f"</div>"
                 )
-            
+
         if node.equivalent_expressions:
             restriction_summary = ""
 
@@ -771,6 +783,8 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
             lines = []
             for source, expressions in sorted(node.equivalent_expressions.items()):
                 source_prefix = source_namespace_prefix(source)
+                if not source_prefix:
+                    continue
                 expr_chunks = []
                 for expr in expressions:
                     if not expr.members:
@@ -798,9 +812,11 @@ def render_tree(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_tar
                 )
 
         child_markup = []
-        for child in sorted(node.children & selected, key=lambda item: nodes[item].label.lower()):
-            if child not in next_path:
-                child_markup.append(render_node(child, next_path))
+        for child in visible_children(uri):
+            if child in next_path:
+                continue
+
+            child_markup.append(render_node(child, next_path))
 
         toggle_button = (
             "<span class='toggle-marker' aria-hidden='true'></span>"
@@ -1174,7 +1190,19 @@ def build_html(nodes: dict[URIRef, NodeInfo], selected: set[URIRef], shared_targ
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a hierarchy visualization from ContaminOSO, FOODON, and alignment TTL files.")
+    parser = argparse.ArgumentParser(
+        description="Build a hierarchy visualization from ContaminOSO, FOODON, and alignment TTL files."
+    )
+
+    ontology_dir = (
+        Path(__file__).resolve().parents[2]
+        / "pfas-kg"
+        / "datasets"
+        / "federal"
+        / "us-wqp"
+        / "ontology"
+    )
+
     parser.add_argument(
         "--foodon",
         type=Path,
@@ -1190,7 +1218,7 @@ def main() -> int:
     parser.add_argument(
         "--egad-alignment",
         type=Path,
-        default=Path(__file__).resolve().parent / "example_data" / "egad-controlledVocab-alignment.ttl",
+        default=Path(__file__).resolve().parents[2] / "pfas-kg" / "datasets" / "maine" / "egad" / "ontology" / "egad-controlledVocab-alignment.ttl",
         help="Path to the EGAD controlled vocabulary alignment TTL file.",
     )
     parser.add_argument(
@@ -1199,6 +1227,7 @@ def main() -> int:
         default=Path(__file__).resolve().parents[2] / "pfas-kg" / "datasets" / "federal" / "us-wqp" / "ontology" / "wqp_alignment.ttl",
         help="Path to the WQP alignment TTL file.",
     )
+    
     parser.add_argument(
         "--output",
         type=Path,
@@ -1248,7 +1277,7 @@ def main() -> int:
 
     nodes: dict[URIRef, NodeInfo] = {}
     for source, graph in sources:
-        build_structure(graph, reasoned_graph, source, nodes)
+        build_structure(graph, merged_graph, source, nodes)
 
     add_inferred_instances(reasoned_graph, reasoned_graph, nodes)
 
@@ -1266,9 +1295,32 @@ def main() -> int:
     elif "wqp_alignment" not in alignment_targets:
         print("WQP alignment file not found; overlap highlighting will be omitted.")
 
-    selected: set[URIRef] = set(nodes)
+    def descendants(start: URIRef, allowed: set[URIRef]) -> set[URIRef]:
+        seen = set()
+        stack = [start]
+        while stack:
+            cur = stack.pop()
+            if cur in seen or cur not in allowed:
+                continue
+            seen.add(cur)
+            stack.extend(nodes[cur].children & allowed)
+        return seen
+
+    selected: set[URIRef] = set()
+    for root in (MATERIAL_ENTITY_IRI, COSO_MATERIAL_SAMPLE_IRI):
+        if root in nodes:
+            selected.update(descendants(root, set(nodes)))
+    
     if shared_targets:
-        selected.update(shared_targets)
+        selected.update(shared_targets & set(nodes))
+
+    org_substance = URIRef("http://purl.obolibrary.org/obo/UBERON_0000463")
+    if org_substance in nodes:
+        print("organism substance children:")
+        for child in sorted(nodes[org_substance].children, key=lambda u: nodes[u].label.lower()):
+            print(" -", nodes[child].label, child)
+            print("   parents:", [nodes[p].label for p in sorted(nodes[child].parents, key=lambda u: nodes[u].label.lower())])
+            print("   preferred:", nodes[preferred_parent(nodes, child, selected)].label if preferred_parent(nodes, child, selected) else None)
 
     html_output = build_html(nodes, selected, shared_targets, "ContaminOSO hierarchy visualization")
     args.output.write_text(html_output, encoding="utf-8")
